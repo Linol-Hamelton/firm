@@ -1,0 +1,103 @@
+{
+  "name": "firm-validator",
+  "version": "0.0.1",
+  "description": "The fastest, simplest schema validator for TypeScript. 50M+ ops/sec, <5KB, zero dependencies.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./primitives": {
+      "import": {
+        "types": "./dist/primitives.d.ts",
+        "default": "./dist/primitives.js"
+      },
+      "require": {
+        "types": "./dist/primitives.d.cts",
+        "default": "./dist/primitives.cjs"
+      }
+    },
+    "./composites": {
+      "import": {
+        "types": "./dist/composites.d.ts",
+        "default": "./dist/composites.js"
+      },
+      "require": {
+        "types": "./dist/composites.d.cts",
+        "default": "./dist/composites.cjs"
+      }
+    },
+    "./compiler": {
+      "import": {
+        "types": "./dist/compiler.d.ts",
+        "default": "./dist/compiler.js"
+      },
+      "require": {
+        "types": "./dist/compiler.d.cts",
+        "default": "./dist/compiler.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "bench": "vitest bench",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run build",
+    "circular": "dpdm --circular --no-warning src/index.ts"
+  },
+  "keywords": [
+    "validator",
+    "schema",
+    "typescript",
+    "validation",
+    "type-safe",
+    "fast",
+    "performance",
+    "zod-alternative"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "dpdm": "^3.14.0",
+    "eslint": "^8.56.0",
+    "rimraf": "^5.0.5",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/firm-validator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/firm-validator/issues"
+  },
+  "homepage": "https://firm-validator.dev"
+}

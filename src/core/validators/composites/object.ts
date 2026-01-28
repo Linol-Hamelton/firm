@@ -21,10 +21,6 @@ import { ok, err, errs, createError, ErrorCode } from '../../../common/types/res
 
 type ObjectShape = Record<string, Schema<unknown>>;
 
-type InferObjectType<T extends ObjectShape> = {
-  [K in keyof T]: T[K]['_output'];
-};
-
 type OptionalKeys<T extends ObjectShape> = {
   [K in keyof T]: undefined extends T[K]['_output'] ? K : never;
 }[keyof T];
@@ -132,7 +128,7 @@ export class ObjectValidator<T extends ObjectShape> extends BaseSchema<
     return ok(result as InferObjectOutput<T>);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
       return false;
     }
@@ -218,7 +214,8 @@ export class ObjectValidator<T extends ObjectShape> extends BaseSchema<
     for (const key in this.config.shape) {
       newShape[key] = this.config.shape[key]!.optional() as Schema<unknown>;
     }
-    return new ObjectValidator(newShape, { ...this.config, shape: undefined as unknown }) as unknown as ObjectValidator<{ [K in keyof T]: Schema<T[K]['_output'] | undefined> }>;
+    const unknownKeys = this.config.unknownKeys ?? 'strip';
+    return new ObjectValidator(newShape, { unknownKeys }) as unknown as ObjectValidator<{ [K in keyof T]: Schema<T[K]['_output'] | undefined> }>;
   }
 
   /**
@@ -239,7 +236,8 @@ export class ObjectValidator<T extends ObjectShape> extends BaseSchema<
         newShape[key as string] = this.config.shape[key as string]!;
       }
     }
-    return new ObjectValidator(newShape as Pick<T, K>, { ...this.config, shape: undefined as unknown });
+    const unknownKeys = this.config.unknownKeys ?? 'strip';
+    return new ObjectValidator(newShape as Pick<T, K>, { unknownKeys });
   }
 
   /**
@@ -253,7 +251,8 @@ export class ObjectValidator<T extends ObjectShape> extends BaseSchema<
         newShape[key] = this.config.shape[key]!;
       }
     }
-    return new ObjectValidator(newShape as Omit<T, K>, { ...this.config, shape: undefined as unknown });
+    const unknownKeys = this.config.unknownKeys ?? 'strip';
+    return new ObjectValidator(newShape as Omit<T, K>, { unknownKeys });
   }
 
   /**
@@ -261,7 +260,8 @@ export class ObjectValidator<T extends ObjectShape> extends BaseSchema<
    */
   extend<U extends ObjectShape>(shape: U): ObjectValidator<T & U> {
     const newShape = { ...this.config.shape, ...shape };
-    return new ObjectValidator(newShape as T & U, { ...this.config, shape: undefined as unknown });
+    const unknownKeys = this.config.unknownKeys ?? 'strip';
+    return new ObjectValidator(newShape as T & U, { unknownKeys });
   }
 
   /**

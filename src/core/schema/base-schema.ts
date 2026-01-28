@@ -148,6 +148,60 @@ export abstract class BaseSchema<T, Config extends SchemaConfig = SchemaConfig>
     return this.validate(data);
   }
 
+  // ==========================================================================
+  // ASYNC VALIDATION METHODS
+  // ==========================================================================
+
+  /**
+   * Validate data asynchronously.
+   * Use this when schema contains async refinements.
+   */
+  async validateAsync(data: unknown): Promise<ValidationResult<T>> {
+    // Handle optional
+    if (data === undefined && this.config.isOptional) {
+      return ok(undefined as T);
+    }
+
+    // Handle nullable
+    if (data === null && this.config.isNullable) {
+      return ok(null as T);
+    }
+
+    // Handle default
+    if (data === undefined && this.config.defaultValue !== undefined) {
+      return ok(this.config.defaultValue as T);
+    }
+
+    return this._validateAsync(data, '');
+  }
+
+  /**
+   * Async validation implementation.
+   * Override in subclasses that support async validation.
+   * Default implementation falls back to sync validation.
+   */
+  protected async _validateAsync(value: unknown, path: string): Promise<ValidationResult<T>> {
+    return this._validate(value, path);
+  }
+
+  /**
+   * Parse asynchronously and return data or throw.
+   */
+  async parseAsync(data: unknown): Promise<T> {
+    const result = await this.validateAsync(data);
+    if (!result.ok) {
+      throw new ValidationException(result.errors);
+    }
+    return result.data;
+  }
+
+  /**
+   * Safe async parse (alias for validateAsync).
+   */
+  async safeParseAsync(data: unknown): Promise<ValidationResult<T>> {
+    return this.validateAsync(data);
+  }
+
   /**
    * Compile schema for repeated validation.
    */
@@ -214,13 +268,26 @@ export abstract class BaseSchema<T, Config extends SchemaConfig = SchemaConfig>
   // ==========================================================================
 
   /**
-   * Add custom refinement.
+   * Add custom synchronous refinement.
    */
   refine(
     check: (value: T) => boolean,
-    message: string = 'Refinement failed'
-  ): RefinedSchema<T> {
-    return new RefinedSchema(this, check, message);
+    message: string | { message: string } = 'Refinement failed'
+  ): Schema<T> {
+    const msg = typeof message === 'string' ? message : message.message;
+    return new RefinedSchema(this, check, msg);
+  }
+
+  /**
+   * Add custom async refinement.
+   * Use validateAsync() to execute async validations.
+   */
+  refineAsync(
+    check: (value: T) => Promise<boolean>,
+    message: string | { message: string } = 'Refinement failed'
+  ): Schema<T> {
+    const msg = typeof message === 'string' ? message : message.message;
+    return new AsyncRefinedSchema(this, check, msg);
   }
 
   /**
@@ -237,6 +304,22 @@ export abstract class BaseSchema<T, Config extends SchemaConfig = SchemaConfig>
    */
   transform<U>(transformer: (value: T) => U): Schema<U> {
     return new TransformSchema(this, transformer);
+  }
+
+  /**
+   * Transform value after validation (async).
+   * Use validateAsync() to execute async transformations.
+   */
+  transformAsync<U>(transformer: (value: T) => Promise<U>): Schema<U> {
+    return new AsyncTransformSchema(this, transformer);
+  }
+
+  /**
+   * Preprocess value before validation.
+   * Useful for coercion or normalization.
+   */
+  preprocess(preprocessor: (value: unknown) => unknown): Schema<T> {
+    return new PreprocessSchema(this, preprocessor);
   }
 
   /**
@@ -397,7 +480,7 @@ class PipeSchema<T, U> extends BaseSchema<U> {
     super({});
   }
 
-  protected _validate(value: unknown, path: string): ValidationResult<U> {
+  protected _validate(value: unknown, _path: string): ValidationResult<U> {
     const firstResult = this.first.validate(value);
     if (!firstResult.ok) return firstResult;
 
@@ -406,5 +489,139 @@ class PipeSchema<T, U> extends BaseSchema<U> {
 
   protected _clone(): this {
     return new PipeSchema(this.first, this.second) as this;
+  }
+}
+
+// ============================================================================
+// ASYNC REFINED SCHEMA
+// ============================================================================
+
+class AsyncRefinedSchema<T> extends BaseSchema<T> {
+  readonly _type = 'custom' as SchemaType;
+
+  constructor(
+    private readonly inner: Schema<T>,
+    private readonly check: (value: T) => Promise<boolean>,
+    private readonly message: string
+  ) {
+    super({});
+  }
+
+  protected _validate(value: unknown, _path: string): ValidationResult<T> {
+    // Sync validation just validates the inner schema
+    // Async check is only run via validateAsync
+    return this.inner.validate(value);
+  }
+
+  protected override async _validateAsync(value: unknown, path: string): Promise<ValidationResult<T>> {
+    // First validate with inner schema (async if available)
+    const innerSchema = this.inner as BaseSchema<T>;
+    const innerResult = typeof innerSchema.validateAsync === 'function'
+      ? await innerSchema.validateAsync(value)
+      : this.inner.validate(value);
+
+    if (!innerResult.ok) return innerResult;
+
+    // Then run async check
+    try {
+      const isValid = await this.check(innerResult.data);
+      if (!isValid) {
+        return err(createError(ErrorCode.REFINEMENT_FAILED, this.message, path));
+      }
+      return innerResult;
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : this.message;
+      return err(createError(ErrorCode.REFINEMENT_FAILED, errorMsg, path));
+    }
+  }
+
+  protected _clone(): this {
+    return new AsyncRefinedSchema(this.inner, this.check, this.message) as this;
+  }
+}
+
+// ============================================================================
+// ASYNC TRANSFORM SCHEMA
+// ============================================================================
+
+class AsyncTransformSchema<T, U> extends BaseSchema<U> {
+  readonly _type = 'pipeline' as SchemaType;
+
+  constructor(
+    private readonly inner: Schema<T>,
+    private readonly transformer: (value: T) => Promise<U>
+  ) {
+    super({});
+  }
+
+  protected _validate(value: unknown, _path: string): ValidationResult<U> {
+    // Sync validation just validates the inner schema
+    // Transform is only run via validateAsync
+    const result = this.inner.validate(value);
+    if (!result.ok) return result as ValidationResult<U>;
+    // For sync, we can't run async transform, return inner result
+    // Users should use validateAsync for async transforms
+    return result as unknown as ValidationResult<U>;
+  }
+
+  protected override async _validateAsync(value: unknown, path: string): Promise<ValidationResult<U>> {
+    // First validate with inner schema (async if available)
+    const innerSchema = this.inner as BaseSchema<T>;
+    const innerResult = typeof innerSchema.validateAsync === 'function'
+      ? await innerSchema.validateAsync(value)
+      : this.inner.validate(value);
+
+    if (!innerResult.ok) return innerResult as ValidationResult<U>;
+
+    // Then run async transform
+    try {
+      const transformed = await this.transformer(innerResult.data);
+      return ok(transformed);
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : 'Transform failed';
+      return err(createError(ErrorCode.TRANSFORM_FAILED, errorMsg, path));
+    }
+  }
+
+  protected _clone(): this {
+    return new AsyncTransformSchema(this.inner, this.transformer) as this;
+  }
+}
+
+// ============================================================================
+// PREPROCESS SCHEMA
+// ============================================================================
+
+class PreprocessSchema<T> extends BaseSchema<T> {
+  readonly _type = 'pipeline' as SchemaType;
+
+  constructor(
+    private readonly inner: Schema<T>,
+    private readonly preprocessor: (value: unknown) => unknown,
+    config: SchemaConfig = {}
+  ) {
+    super(config);
+  }
+
+  protected _validate(value: unknown, _path: string): ValidationResult<T> {
+    // Preprocess the value first
+    const preprocessed = this.preprocessor(value);
+    // Then validate with inner schema
+    return this.inner.validate(preprocessed);
+  }
+
+  protected override async _validateAsync(value: unknown, _path: string): Promise<ValidationResult<T>> {
+    // Preprocess the value first
+    const preprocessed = this.preprocessor(value);
+    // Then validate with inner schema (async if available)
+    const innerSchema = this.inner as BaseSchema<T>;
+    return typeof innerSchema.validateAsync === 'function'
+      ? await innerSchema.validateAsync(preprocessed)
+      : this.inner.validate(preprocessed);
+  }
+
+  protected _clone(configUpdate: Partial<SchemaConfig> = {}): this {
+    const newConfig = { ...this.config, ...configUpdate };
+    return new PreprocessSchema(this.inner, this.preprocessor, newConfig) as this;
   }
 }

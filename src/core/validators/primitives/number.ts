@@ -128,22 +128,28 @@ export class NumberValidator extends BaseSchema<number, NumberSchemaConfig> {
       );
     }
 
-    // Multiple of check
-    if (this.config.multipleOf !== undefined && value % this.config.multipleOf !== 0) {
-      return err(
-        createError(
-          ErrorCode.NUMBER_NOT_MULTIPLE,
-          this.config.errorMessage ?? `Number must be a multiple of ${this.config.multipleOf}`,
-          path,
-          { expected: this.config.multipleOf }
-        )
-      );
+    // Multiple of check (with floating-point tolerance)
+    if (this.config.multipleOf !== undefined) {
+      const remainder = Math.abs(value % this.config.multipleOf);
+      const tolerance = Math.abs(this.config.multipleOf) * 1e-9;
+      const isMultiple = remainder < tolerance || Math.abs(remainder - Math.abs(this.config.multipleOf)) < tolerance;
+
+      if (!isMultiple) {
+        return err(
+          createError(
+            ErrorCode.NUMBER_NOT_MULTIPLE,
+            this.config.errorMessage ?? `Number must be a multiple of ${this.config.multipleOf}`,
+            path,
+            { expected: this.config.multipleOf }
+          )
+        );
+      }
     }
 
     return ok(value);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (typeof value !== 'number' || Number.isNaN(value)) return false;
     if (this.config.finite && !Number.isFinite(value)) return false;
     if (this.config.integer && !Number.isInteger(value)) return false;
@@ -152,7 +158,13 @@ export class NumberValidator extends BaseSchema<number, NumberSchemaConfig> {
     if (this.config.max !== undefined && value > this.config.max) return false;
     if (this.config.positive && value <= 0) return false;
     if (this.config.negative && value >= 0) return false;
-    if (this.config.multipleOf !== undefined && value % this.config.multipleOf !== 0) return false;
+    if (this.config.multipleOf !== undefined) {
+      const remainder = Math.abs(value % this.config.multipleOf);
+      const tolerance = Math.abs(this.config.multipleOf) * 1e-9;
+      if (!(remainder < tolerance || Math.abs(remainder - Math.abs(this.config.multipleOf)) < tolerance)) {
+        return false;
+      }
+    }
     return true;
   }
 

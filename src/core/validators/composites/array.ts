@@ -116,7 +116,7 @@ export class ArrayValidator<T> extends BaseSchema<T[], ArrayConfig<T>> {
     return ok(result);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (!Array.isArray(value)) return false;
 
     if (this.config.minLength !== undefined && value.length < this.config.minLength) {
@@ -220,7 +220,11 @@ export class TupleValidator<T extends readonly Schema<unknown>[]> extends BaseSc
   readonly _type = 'tuple' as const;
 
   constructor(items: T, config?: { rest?: Schema<unknown> }) {
-    super({ items, rest: config?.rest });
+    const baseConfig: TupleConfig<T> = { items };
+    if (config?.rest !== undefined) {
+      baseConfig.rest = config.rest;
+    }
+    super(baseConfig);
   }
 
   protected _validate(value: unknown, path: string): ValidationResult<InferTupleType<T>> {
@@ -306,7 +310,7 @@ export class TupleValidator<T extends readonly Schema<unknown>[]> extends BaseSc
     return ok(result as InferTupleType<T>);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (!Array.isArray(value)) return false;
 
     const items = this.config.items;
@@ -327,9 +331,11 @@ export class TupleValidator<T extends readonly Schema<unknown>[]> extends BaseSc
   }
 
   protected _clone(config: Partial<TupleConfig<T>>): this {
+    const restSchema = config.rest !== undefined ? config.rest : this.config.rest;
+    const tupleConfig = restSchema !== undefined ? { rest: restSchema } : undefined;
     return new TupleValidator(
       config.items ?? this.config.items,
-      { rest: config.rest ?? this.config.rest }
+      tupleConfig
     ) as this;
   }
 

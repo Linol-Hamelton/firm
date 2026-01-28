@@ -27,8 +27,8 @@ export class RecordValidator<K extends string | number | symbol, V> extends Base
 > {
   readonly _type = 'record' as const;
 
-  constructor(keySchema: Schema<K>, valueSchema: Schema<V>) {
-    super({ keySchema, valueSchema });
+  constructor(keySchema: Schema<K>, valueSchema: Schema<V>, baseConfig: Partial<SchemaConfig> = {}) {
+    super({ ...baseConfig, keySchema, valueSchema });
   }
 
   protected _validate(value: unknown, path: string): ValidationResult<Record<K, V>> {
@@ -83,7 +83,7 @@ export class RecordValidator<K extends string | number | symbol, V> extends Base
     return ok(result as Record<K, V>);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
       return false;
     }
@@ -99,9 +99,11 @@ export class RecordValidator<K extends string | number | symbol, V> extends Base
   }
 
   protected _clone(config: Partial<RecordConfig<K, V>>): this {
+    const merged = { ...this.config, ...config };
     return new RecordValidator(
-      config.keySchema ?? this.config.keySchema,
-      config.valueSchema ?? this.config.valueSchema
+      merged.keySchema,
+      merged.valueSchema,
+      merged
     ) as this;
   }
 }
@@ -118,8 +120,8 @@ interface MapConfig<K, V> extends SchemaConfig {
 export class MapValidator<K, V> extends BaseSchema<Map<K, V>, MapConfig<K, V>> {
   readonly _type = 'map' as const;
 
-  constructor(keySchema: Schema<K>, valueSchema: Schema<V>) {
-    super({ keySchema, valueSchema });
+  constructor(keySchema: Schema<K>, valueSchema: Schema<V>, baseConfig: Partial<SchemaConfig> = {}) {
+    super({ ...baseConfig, keySchema, valueSchema });
   }
 
   protected _validate(value: unknown, path: string): ValidationResult<Map<K, V>> {
@@ -175,7 +177,7 @@ export class MapValidator<K, V> extends BaseSchema<Map<K, V>, MapConfig<K, V>> {
     return ok(result);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (!(value instanceof Map)) return false;
 
     for (const [k, v] of value) {
@@ -187,9 +189,11 @@ export class MapValidator<K, V> extends BaseSchema<Map<K, V>, MapConfig<K, V>> {
   }
 
   protected _clone(config: Partial<MapConfig<K, V>>): this {
+    const merged = { ...this.config, ...config };
     return new MapValidator(
-      config.keySchema ?? this.config.keySchema,
-      config.valueSchema ?? this.config.valueSchema
+      merged.keySchema,
+      merged.valueSchema,
+      merged
     ) as this;
   }
 }
@@ -207,7 +211,7 @@ interface SetConfig<T> extends SchemaConfig {
 export class SetValidator<T> extends BaseSchema<Set<T>, SetConfig<T>> {
   readonly _type = 'set' as const;
 
-  constructor(valueSchema: Schema<T>, config: Omit<SetConfig<T>, 'valueSchema'> = {}) {
+  constructor(valueSchema: Schema<T>, config: Partial<SetConfig<T>> = {}) {
     super({ ...config, valueSchema });
   }
 
@@ -272,7 +276,7 @@ export class SetValidator<T> extends BaseSchema<Set<T>, SetConfig<T>> {
     return ok(result);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (!(value instanceof Set)) return false;
 
     if (this.config.minSize !== undefined && value.size < this.config.minSize) {
@@ -330,7 +334,7 @@ export function record<K extends string | number | symbol, V>(
 export function record<K extends string | number | symbol, V>(
   keyOrValueSchema: Schema<K> | Schema<V>,
   valueSchema?: Schema<V>
-): RecordValidator<K | string, V> {
+): RecordValidator<K, V> | RecordValidator<string, V> {
   if (valueSchema === undefined) {
     // Single argument - string keys assumed
     const StringSchema = {
@@ -355,6 +359,10 @@ export function record<K extends string | number | symbol, V>(
       },
       safeParse: (v: unknown) =>
         typeof v === 'string' ? { ok: true as const, data: v } : { ok: false as const, errors: [] },
+      optional: () => StringSchema as unknown as Schema<string | undefined>,
+      nullable: () => StringSchema as unknown as Schema<string | null>,
+      nullish: () => StringSchema as unknown as Schema<string | null | undefined>,
+      default: () => StringSchema,
     } as Schema<string>;
 
     return new RecordValidator(StringSchema, keyOrValueSchema as Schema<V>);

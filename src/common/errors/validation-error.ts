@@ -16,7 +16,7 @@ import type { ValidationError as ValidationErrorData, ErrorCode } from '../types
  * Extends Error with additional context.
  */
 export abstract class FirmError extends Error {
-  abstract readonly name: string;
+  abstract override readonly name: string;
   abstract readonly code: string;
 
   constructor(message: string) {
@@ -35,8 +35,8 @@ export abstract class FirmError extends Error {
  * Contains all validation errors for inspection.
  */
 export class ValidationException extends FirmError {
-  readonly name = 'ValidationException' as const;
-  readonly code = 'VALIDATION_FAILED' as const;
+  override readonly name = 'ValidationException' as const;
+  override readonly code = 'VALIDATION_FAILED' as const;
 
   constructor(
     public readonly errors: readonly ValidationErrorData[],
@@ -95,8 +95,8 @@ export class ValidationException extends FirmError {
  * This is a developer error, not a runtime validation error.
  */
 export class SchemaDefinitionError extends FirmError {
-  readonly name = 'SchemaDefinitionError' as const;
-  readonly code = 'INVALID_SCHEMA' as const;
+  override readonly name = 'SchemaDefinitionError' as const;
+  override readonly code = 'INVALID_SCHEMA' as const;
 
   constructor(
     message: string,
@@ -114,8 +114,8 @@ export class SchemaDefinitionError extends FirmError {
  * Exception thrown when schema compilation fails.
  */
 export class CompilationError extends FirmError {
-  readonly name = 'CompilationError' as const;
-  readonly code = 'COMPILATION_FAILED' as const;
+  override readonly name = 'CompilationError' as const;
+  override readonly code = 'COMPILATION_FAILED' as const;
 
   constructor(
     message: string,

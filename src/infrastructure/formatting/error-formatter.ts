@@ -7,7 +7,7 @@
 
 import type { ErrorFormatterPort } from '../../ports/output/formatter-port.js';
 import type { ValidationError, ErrorCode } from '../../common/types/result.js';
-import { DEFAULT_MESSAGES, resolveMessage, type MessageParams } from '../../common/constants/messages.js';
+import { resolveMessage, type MessageParams } from '../../common/constants/messages.js';
 
 // ============================================================================
 // DEFAULT ERROR FORMATTER

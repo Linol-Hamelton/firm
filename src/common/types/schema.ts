@@ -152,6 +152,57 @@ export interface Schema<T, Input = unknown> {
    * @returns ValidationResult
    */
   safeParse(data: unknown): ValidationResult<T>;
+
+  /**
+   * Validate input data asynchronously.
+   * Use this when schema contains async refinements or transformations.
+   * Optional - only implemented by schemas that support async.
+   *
+   * @param data - Unknown data to validate
+   * @returns Promise of ValidationResult with typed data or errors
+   */
+  validateAsync?(data: unknown): Promise<ValidationResult<T>>;
+
+  /**
+   * Parse asynchronously and return data or throw.
+   * Convenience method for async validation + throw.
+   * Optional - only implemented by schemas that support async.
+   *
+   * @param data - Data to parse
+   * @returns Promise of validated data
+   * @throws ValidationError if invalid
+   */
+  parseAsync?(data: unknown): Promise<T>;
+
+  /**
+   * Safe async parse that never throws.
+   * Alias for validateAsync() for Zod compatibility.
+   * Optional - only implemented by schemas that support async.
+   *
+   * @param data - Data to parse
+   * @returns Promise of ValidationResult
+   */
+  safeParseAsync?(data: unknown): Promise<ValidationResult<T>>;
+
+  /**
+   * Make schema optional (allows undefined).
+   */
+  optional(): Schema<T | undefined>;
+
+  /**
+   * Make schema nullable (allows null).
+   */
+  nullable(): Schema<T | null>;
+
+  /**
+   * Make schema nullish (allows null or undefined).
+   */
+  nullish(): Schema<T | null | undefined>;
+
+  /**
+   * Provide default value when undefined.
+   */
+  default(value: T): Schema<T>;
 }
 
 // ============================================================================

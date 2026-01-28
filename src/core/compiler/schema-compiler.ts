@@ -14,7 +14,7 @@
 
 import type { Schema, CompiledValidator, SchemaType } from '../../common/types/schema.js';
 import type { ValidationResult, ValidationError } from '../../common/types/result.js';
-import { ok, err, errs, createError, ErrorCode } from '../../common/types/result.js';
+import { ErrorCode } from '../../common/types/result.js';
 
 // ============================================================================
 // COMPILER INTERFACE
@@ -57,10 +57,11 @@ export function compile<T>(
   const schemaType = schema._type;
 
   // Compile based on schema type
-  const validator = compileByType(schema, schemaType, abortEarly);
+  const validateFn = compileByType(schema, schemaType, abortEarly);
 
-  // Add is() method
-  validator.is = (data: unknown): data is T => validator(data).ok;
+  // Create compiled validator with is() method
+  const validator = validateFn as CompiledValidator<T>;
+  (validator as any).is = (data: unknown): data is T => validateFn(data).ok;
 
   return validator;
 }
@@ -73,26 +74,95 @@ function compileByType<T>(
   type: SchemaType,
   abortEarly: boolean
 ): (data: unknown) => ValidationResult<T> {
+  // Get base validator
+  let baseFn: (data: unknown) => ValidationResult<T>;
+
   switch (type) {
     case 'string':
-      return compileString(schema) as (data: unknown) => ValidationResult<T>;
+      baseFn = compileString(schema as unknown as Schema<string>) as (data: unknown) => ValidationResult<T>;
+      break;
 
     case 'number':
-      return compileNumber(schema) as (data: unknown) => ValidationResult<T>;
+      baseFn = compileNumber(schema as unknown as Schema<number>) as (data: unknown) => ValidationResult<T>;
+      break;
 
     case 'boolean':
-      return compileBoolean(schema) as (data: unknown) => ValidationResult<T>;
+      baseFn = compileBoolean(schema as unknown as Schema<boolean>) as (data: unknown) => ValidationResult<T>;
+      break;
 
     case 'object':
-      return compileObject(schema, abortEarly) as (data: unknown) => ValidationResult<T>;
+      baseFn = compileObject(schema as unknown as Schema<Record<string, unknown>>, abortEarly) as (data: unknown) => ValidationResult<T>;
+      break;
 
     case 'array':
-      return compileArray(schema, abortEarly) as (data: unknown) => ValidationResult<T>;
+      baseFn = compileArray(schema as unknown as Schema<unknown[]>, abortEarly) as (data: unknown) => ValidationResult<T>;
+      break;
+
+    case 'literal':
+      baseFn = compileLiteral(schema) as (data: unknown) => ValidationResult<T>;
+      break;
+
+    case 'enum':
+      baseFn = compileEnum(schema) as (data: unknown) => ValidationResult<T>;
+      break;
+
+    case 'union':
+      baseFn = compileUnion(schema, abortEarly) as (data: unknown) => ValidationResult<T>;
+      break;
+
+    case 'record':
+      baseFn = compileRecord(schema, abortEarly) as (data: unknown) => ValidationResult<T>;
+      break;
+
+    case 'tuple':
+      baseFn = compileTuple(schema, abortEarly) as (data: unknown) => ValidationResult<T>;
+      break;
+
+    case 'date':
+      baseFn = compileDate(schema as unknown as Schema<Date>) as (data: unknown) => ValidationResult<T>;
+      break;
 
     default:
       // Fallback to schema's validate method
-      return (data: unknown) => schema.validate(data);
+      baseFn = (data: unknown) => schema.validate(data);
   }
+
+  // Wrap with optional/nullable handling
+  return wrapWithOptionalNullable(schema, baseFn);
+}
+
+/**
+ * Wrap a validator function with optional/nullable handling.
+ */
+function wrapWithOptionalNullable<T>(
+  schema: Schema<T>,
+  baseFn: (data: unknown) => ValidationResult<T>
+): (data: unknown) => ValidationResult<T> {
+  const config = 'config' in schema ? (schema as any).config : {};
+  const { isOptional, isNullable, defaultValue } = config;
+
+  if (!isOptional && !isNullable && defaultValue === undefined) {
+    return baseFn;
+  }
+
+  return function validateWithOptionalNullable(data: unknown): ValidationResult<T> {
+    // Handle optional
+    if (data === undefined && isOptional) {
+      return { ok: true, data: undefined as T };
+    }
+
+    // Handle nullable
+    if (data === null && isNullable) {
+      return { ok: true, data: null as T };
+    }
+
+    // Handle default
+    if (data === undefined && defaultValue !== undefined) {
+      return { ok: true, data: defaultValue as T };
+    }
+
+    return baseFn(data);
+  };
 }
 
 // ============================================================================
@@ -549,6 +619,341 @@ function compileArray<T>(
     }
 
     return { ok: true, data: result };
+  };
+}
+
+// ============================================================================
+// ADDITIONAL TYPE COMPILERS
+// ============================================================================
+
+/**
+ * Compile literal validator.
+ */
+function compileLiteral<T>(schema: Schema<T>): (data: unknown) => ValidationResult<T> {
+  const config = 'config' in schema ? (schema as any).config : {};
+  const literalValue = config.value;
+  const errorMessage = config.errorMessage;
+
+  return function validateLiteral(data: unknown): ValidationResult<T> {
+    if (data !== literalValue) {
+      return {
+        ok: false,
+        errors: [
+          {
+            path: '',
+            code: ErrorCode.INVALID_LITERAL,
+            message: errorMessage ?? `Expected literal value: ${JSON.stringify(literalValue)}`,
+          },
+        ],
+      };
+    }
+    return { ok: true, data: data as T };
+  };
+}
+
+/**
+ * Compile enum validator.
+ */
+function compileEnum<T>(schema: Schema<T>): (data: unknown) => ValidationResult<T> {
+  const config = 'config' in schema ? (schema as any).config : {};
+  const values = config.values as T[] || [];
+  const errorMessage = config.errorMessage;
+  const valuesSet = new Set(values);
+
+  return function validateEnum(data: unknown): ValidationResult<T> {
+    if (!valuesSet.has(data as T)) {
+      return {
+        ok: false,
+        errors: [
+          {
+            path: '',
+            code: ErrorCode.INVALID_ENUM_VALUE,
+            message: errorMessage ?? `Expected one of: ${values.map(v => JSON.stringify(v)).join(', ')}`,
+          },
+        ],
+      };
+    }
+    return { ok: true, data: data as T };
+  };
+}
+
+/**
+ * Compile union validator.
+ */
+function compileUnion<T>(
+  schema: Schema<T>,
+  abortEarly: boolean
+): (data: unknown) => ValidationResult<T> {
+  const config = 'config' in schema ? (schema as any).config : {};
+  const options = config.options as Schema<unknown>[] || [];
+  const errorMessage = config.errorMessage;
+
+  // Pre-compile all option validators
+  const compiledOptions = options.map((opt: Schema<unknown>) => compile(opt, { abortEarly }));
+
+  return function validateUnion(data: unknown): ValidationResult<T> {
+    const allErrors: ValidationError[] = [];
+
+    for (const validate of compiledOptions) {
+      const result = validate(data);
+      if (result.ok) {
+        return { ok: true, data: result.data as T };
+      }
+      allErrors.push(...result.errors);
+    }
+
+    return {
+      ok: false,
+      errors: [
+        {
+          path: '',
+          code: ErrorCode.UNION_NO_MATCH,
+          message: errorMessage ?? 'Value does not match any union member',
+        },
+      ],
+    };
+  };
+}
+
+/**
+ * Compile record validator.
+ */
+function compileRecord<T>(
+  schema: Schema<T>,
+  abortEarly: boolean
+): (data: unknown) => ValidationResult<T> {
+  const config = 'config' in schema ? (schema as any).config : {};
+  const keySchema = config.keySchema as Schema<string>;
+  const valueSchema = config.valueSchema as Schema<unknown>;
+  const errorMessage = config.errorMessage;
+
+  // Pre-compile validators
+  const validateKey = keySchema ? compile(keySchema, { abortEarly }) : null;
+  const validateValue = valueSchema ? compile(valueSchema, { abortEarly }) : null;
+
+  return function validateRecord(data: unknown): ValidationResult<T> {
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+      return {
+        ok: false,
+        errors: [
+          {
+            path: '',
+            code: ErrorCode.NOT_OBJECT,
+            message: errorMessage ?? 'Expected object',
+          },
+        ],
+      };
+    }
+
+    const input = data as Record<string, unknown>;
+    const result: Record<string, unknown> = {};
+    const errors: ValidationError[] = [];
+
+    for (const [key, value] of Object.entries(input)) {
+      // Validate key if key schema exists
+      if (validateKey) {
+        const keyResult = validateKey(key);
+        if (!keyResult.ok) {
+          for (const error of keyResult.errors) {
+            errors.push({
+              ...error,
+              path: `[key: ${key}]`,
+            });
+          }
+          if (abortEarly) {
+            return { ok: false, errors };
+          }
+          continue;
+        }
+      }
+
+      // Validate value if value schema exists
+      if (validateValue) {
+        const valueResult = validateValue(value);
+        if (!valueResult.ok) {
+          for (const error of valueResult.errors) {
+            errors.push({
+              ...error,
+              path: error.path ? `${key}.${error.path}` : key,
+            });
+          }
+          if (abortEarly) {
+            return { ok: false, errors };
+          }
+        } else {
+          result[key] = valueResult.data;
+        }
+      } else {
+        result[key] = value;
+      }
+    }
+
+    if (errors.length > 0) {
+      return { ok: false, errors };
+    }
+
+    return { ok: true, data: result as T };
+  };
+}
+
+/**
+ * Compile tuple validator.
+ */
+function compileTuple<T>(
+  schema: Schema<T>,
+  abortEarly: boolean
+): (data: unknown) => ValidationResult<T> {
+  const config = 'config' in schema ? (schema as any).config : {};
+  const items = config.items as Schema<unknown>[] || [];
+  const rest = config.rest as Schema<unknown> | undefined;
+  const errorMessage = config.errorMessage;
+
+  // Pre-compile item validators
+  const compiledItems = items.map((item: Schema<unknown>) => compile(item, { abortEarly }));
+  const compiledRest = rest ? compile(rest, { abortEarly }) : null;
+
+  return function validateTuple(data: unknown): ValidationResult<T> {
+    if (!Array.isArray(data)) {
+      return {
+        ok: false,
+        errors: [
+          {
+            path: '',
+            code: ErrorCode.NOT_ARRAY,
+            message: errorMessage ?? 'Expected array',
+          },
+        ],
+      };
+    }
+
+    const minLength = items.length;
+    if (data.length < minLength) {
+      return {
+        ok: false,
+        errors: [
+          {
+            path: '',
+            code: ErrorCode.ARRAY_TOO_SHORT,
+            message: `Tuple must have at least ${minLength} items`,
+          },
+        ],
+      };
+    }
+
+    if (!compiledRest && data.length > minLength) {
+      return {
+        ok: false,
+        errors: [
+          {
+            path: '',
+            code: ErrorCode.ARRAY_TOO_LONG,
+            message: `Tuple must have exactly ${minLength} items`,
+          },
+        ],
+      };
+    }
+
+    const result: unknown[] = [];
+    const errors: ValidationError[] = [];
+
+    // Validate defined items
+    for (let i = 0; i < compiledItems.length; i++) {
+      const validator = compiledItems[i]!;
+      const itemResult = validator(data[i]);
+      if (!itemResult.ok) {
+        for (const error of itemResult.errors) {
+          errors.push({
+            ...error,
+            path: error.path ? `[${i}].${error.path}` : `[${i}]`,
+          });
+        }
+        if (abortEarly) {
+          return { ok: false, errors };
+        }
+      } else {
+        result.push(itemResult.data);
+      }
+    }
+
+    // Validate rest items
+    if (compiledRest) {
+      for (let i = compiledItems.length; i < data.length; i++) {
+        const itemResult = compiledRest(data[i]);
+        if (!itemResult.ok) {
+          for (const error of itemResult.errors) {
+            errors.push({
+              ...error,
+              path: error.path ? `[${i}].${error.path}` : `[${i}]`,
+            });
+          }
+          if (abortEarly) {
+            return { ok: false, errors };
+          }
+        } else {
+          result.push(itemResult.data);
+        }
+      }
+    }
+
+    if (errors.length > 0) {
+      return { ok: false, errors };
+    }
+
+    return { ok: true, data: result as T };
+  };
+}
+
+/**
+ * Compile date validator.
+ */
+function compileDate(schema: Schema<Date>): (data: unknown) => ValidationResult<Date> {
+  const config = 'config' in schema ? (schema as any).config : {};
+  const { min, max, errorMessage } = config;
+
+  const hasMin = min !== undefined;
+  const hasMax = max !== undefined;
+
+  return function validateDate(data: unknown): ValidationResult<Date> {
+    if (!(data instanceof Date) || isNaN(data.getTime())) {
+      return {
+        ok: false,
+        errors: [
+          {
+            path: '',
+            code: ErrorCode.NOT_DATE,
+            message: errorMessage ?? 'Expected Date',
+          },
+        ],
+      };
+    }
+
+    if (hasMin && data.getTime() < min.getTime()) {
+      return {
+        ok: false,
+        errors: [
+          {
+            path: '',
+            code: ErrorCode.DATE_TOO_EARLY,
+            message: errorMessage ?? `Date must be after ${min.toISOString()}`,
+          },
+        ],
+      };
+    }
+
+    if (hasMax && data.getTime() > max.getTime()) {
+      return {
+        ok: false,
+        errors: [
+          {
+            path: '',
+            code: ErrorCode.DATE_TOO_LATE,
+            message: errorMessage ?? `Date must be before ${max.toISOString()}`,
+          },
+        ],
+      };
+    }
+
+    return { ok: true, data };
   };
 }
 

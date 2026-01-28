@@ -12,7 +12,7 @@
  */
 
 import type { ValidationResult, ValidationError, ErrorCode } from '../types/result.js';
-import type { Schema, SchemaConfig } from '../types/schema.js';
+import type { Schema } from '../types/schema.js';
 
 // ============================================================================
 // VALIDATOR FUNCTION CONTRACT
@@ -44,7 +44,7 @@ export type CheckFn = (value: unknown) => boolean;
  * Contract for schema builders (fluent API).
  * All schema methods should return a new schema instance (immutable).
  */
-export interface SchemaBuilder<T, S extends Schema<T>> {
+export interface SchemaBuilder<T, S> {
   /**
    * Mark field as optional (T | undefined).
    */

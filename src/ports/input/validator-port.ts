@@ -11,8 +11,8 @@
  * - CLI tool
  */
 
-import type { Schema, Infer } from '../../common/types/schema.js';
-import type { ValidationResult, ValidationError } from '../../common/types/result.js';
+import type { Schema } from '../../common/types/schema.js';
+import type { ValidationResult } from '../../common/types/result.js';
 
 // ============================================================================
 // VALIDATION PORT

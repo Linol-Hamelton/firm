@@ -5,7 +5,7 @@
  */
 
 import { BaseSchema } from '../../schema/base-schema.js';
-import type { SchemaConfig, Schema } from '../../../common/types/schema.js';
+import type { SchemaConfig } from '../../../common/types/schema.js';
 import type { ValidationResult } from '../../../common/types/result.js';
 import { ok, err, createError, ErrorCode } from '../../../common/types/result.js';
 
@@ -20,8 +20,8 @@ interface LiteralConfig<T> extends SchemaConfig {
 export class LiteralValidator<T extends string | number | boolean | null | undefined> extends BaseSchema<T, LiteralConfig<T>> {
   readonly _type = 'literal' as const;
 
-  constructor(value: T) {
-    super({ value });
+  constructor(value: T, baseConfig: Partial<SchemaConfig> = {}) {
+    super({ ...baseConfig, value });
   }
 
   protected _validate(value: unknown, path: string): ValidationResult<T> {
@@ -38,12 +38,13 @@ export class LiteralValidator<T extends string | number | boolean | null | undef
     return ok(value as T);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     return value === this.config.value;
   }
 
   protected _clone(config: Partial<LiteralConfig<T>>): this {
-    return new LiteralValidator(config.value ?? this.config.value) as this;
+    const merged = { ...this.config, ...config };
+    return new LiteralValidator(merged.value, merged) as this;
   }
 
   /**
@@ -66,8 +67,8 @@ export class EnumValidator<T extends readonly [string, ...string[]]> extends Bas
   readonly _type = 'enum' as const;
   private readonly valueSet: Set<unknown>;
 
-  constructor(values: T) {
-    super({ values });
+  constructor(values: T, baseConfig: Partial<SchemaConfig> = {}) {
+    super({ ...baseConfig, values });
     this.valueSet = new Set(values);
   }
 
@@ -85,12 +86,13 @@ export class EnumValidator<T extends readonly [string, ...string[]]> extends Bas
     return ok(value as T[number]);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     return this.valueSet.has(value);
   }
 
   protected _clone(config: Partial<EnumConfig<T>>): this {
-    return new EnumValidator(config.values ?? this.config.values) as this;
+    const merged = { ...this.config, ...config };
+    return new EnumValidator(merged.values, merged) as this;
   }
 
   /**
@@ -110,17 +112,17 @@ export class EnumValidator<T extends readonly [string, ...string[]]> extends Bas
   /**
    * Exclude specific values.
    */
-  exclude<K extends T[number]>(values: K[]): EnumValidator<Exclude<T, K>[]> {
+  exclude<K extends T[number]>(values: readonly K[]): EnumValidator<readonly [string, ...string[]]> {
     const excludeSet = new Set(values);
-    const newValues = this.config.values.filter((v) => !excludeSet.has(v)) as unknown as Exclude<T, K>[];
-    return new EnumValidator(newValues as unknown as readonly [string, ...string[]]) as unknown as EnumValidator<Exclude<T, K>[]>;
+    const newValues = this.config.values.filter((v): v is string => !excludeSet.has(v as K));
+    return new EnumValidator(newValues as unknown as readonly [string, ...string[]], this.config);
   }
 
   /**
    * Extract specific values.
    */
-  extract<K extends T[number]>(values: K[]): EnumValidator<K[]> {
-    return new EnumValidator(values as unknown as readonly [string, ...string[]]) as unknown as EnumValidator<K[]>;
+  extract<K extends T[number]>(values: readonly K[]): EnumValidator<readonly [string, ...string[]]> {
+    return new EnumValidator(values as unknown as readonly [string, ...string[]], this.config);
   }
 }
 
@@ -138,11 +140,12 @@ export class NativeEnumValidator<T extends EnumLike> extends BaseSchema<T[keyof 
   readonly _type = 'native_enum' as const;
   private readonly valueSet: Set<unknown>;
 
-  constructor(enumObj: T) {
-    super({ enum: enumObj });
+  constructor(enumObj: T, baseConfig: Partial<SchemaConfig> = {}) {
+    super({ ...baseConfig, enum: enumObj });
     // Handle numeric enums (which have reverse mappings)
+    // Filter out string keys that map back to numbers (reverse mappings)
     this.valueSet = new Set(
-      Object.values(enumObj).filter((v) => typeof v !== 'number' || !enumObj[v])
+      Object.values(enumObj).filter((v) => typeof enumObj[v as keyof T] !== 'number')
     );
   }
 
@@ -160,12 +163,13 @@ export class NativeEnumValidator<T extends EnumLike> extends BaseSchema<T[keyof 
     return ok(value as T[keyof T]);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     return this.valueSet.has(value);
   }
 
   protected _clone(config: Partial<NativeEnumConfig<T>>): this {
-    return new NativeEnumValidator(config.enum ?? this.config.enum) as this;
+    const merged = { ...this.config, ...config };
+    return new NativeEnumValidator(merged.enum, merged) as this;
   }
 }
 
@@ -230,7 +234,7 @@ export class DateValidator extends BaseSchema<Date, DateConfig> {
     return ok(value);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (!(value instanceof Date) || Number.isNaN(value.getTime())) return false;
     if (this.config.min && value < this.config.min) return false;
     if (this.config.max && value > this.config.max) return false;
@@ -268,7 +272,7 @@ export class NullValidator extends BaseSchema<null> {
     return ok(null);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     return value === null;
   }
 
@@ -291,7 +295,7 @@ export class UndefinedValidator extends BaseSchema<undefined> {
     return ok(undefined);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     return value === undefined;
   }
 
@@ -311,7 +315,7 @@ export class AnyValidator extends BaseSchema<any> {
     return ok(value);
   }
 
-  protected _check(): boolean {
+  protected override _check(): boolean {
     return true;
   }
 
@@ -331,7 +335,7 @@ export class UnknownValidator extends BaseSchema<unknown> {
     return ok(value);
   }
 
-  protected _check(): boolean {
+  protected override _check(): boolean {
     return true;
   }
 
@@ -351,7 +355,7 @@ export class NeverValidator extends BaseSchema<never> {
     return err(createError(ErrorCode.INVALID_TYPE, 'Never type cannot have value', path));
   }
 
-  protected _check(): boolean {
+  protected override _check(): boolean {
     return false;
   }
 
@@ -374,7 +378,7 @@ export class VoidValidator extends BaseSchema<void> {
     return ok(undefined);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     return value === undefined;
   }
 

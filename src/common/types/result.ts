@@ -146,6 +146,10 @@ export const ErrorCode = {
   INVALID_ENUM_VALUE: 'INVALID_ENUM_VALUE',
   INVALID_LITERAL: 'INVALID_LITERAL',
 
+  // Date constraints
+  DATE_TOO_EARLY: 'DATE_TOO_EARLY',
+  DATE_TOO_LATE: 'DATE_TOO_LATE',
+
   // Custom
   CUSTOM_VALIDATION: 'CUSTOM_VALIDATION',
 
@@ -196,7 +200,11 @@ export function createError(
   path: string = '',
   meta?: Readonly<Record<string, unknown>>
 ): ValidationError {
-  return { code, message, path, meta };
+  const error: ValidationError = { code, message, path };
+  if (meta !== undefined) {
+    return { ...error, meta };
+  }
+  return error;
 }
 
 // ============================================================================

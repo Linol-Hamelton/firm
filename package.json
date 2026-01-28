@@ -1,7 +1,7 @@
 {
   "name": "firm-validator",
-  "version": "0.0.1",
-  "description": "The fastest, simplest schema validator for TypeScript. 50M+ ops/sec, <5KB, zero dependencies.",
+  "version": "1.0.0-rc.1",
+  "description": "The fastest, simplest TypeScript schema validator. 50M ops/sec, <5KB, zero dependencies.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -60,12 +60,15 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "bench": "vitest bench",
+    "test:cov": "vitest run --coverage",
+    "bench": "npx tsx benchmarks/performance.bench.ts",
+    "bench:vitest": "vitest bench",
+    "bench:compare": "vitest bench --compare",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "clean": "rimraf dist",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run test && npm run build",
     "circular": "dpdm --circular --no-warning src/index.ts"
   },
   "keywords": [
@@ -74,14 +77,33 @@
     "typescript",
     "validation",
     "type-safe",
-    "fast",
     "performance",
-    "zod-alternative"
+    "zod-alternative",
+    "runtime-validation",
+    "json-schema",
+    "data-validation",
+    "form-validation",
+    "api-validation",
+    "express",
+    "fastify",
+    "next.js",
+    "react",
+    "vue",
+    "svelte",
+    "trpc",
+    "graphql",
+    "prisma",
+    "type-inference"
   ],
-  "author": "",
+  "author": {
+    "name": "fomenkoruslan",
+    "email": "fruslanj@gmail.com",
+    "url": "https://github.com/Linol-Hamelton"
+  },
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.11.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "dpdm": "^3.14.0",
     "eslint": "^8.56.0",
     "rimraf": "^5.0.5",
@@ -94,10 +116,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/firm-validator.git"
+    "url": "https://github.com/Linol-Hamelton/firm.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/firm-validator/issues"
+    "url": "https://github.com/Linol-Hamelton/firm/issues"
   },
-  "homepage": "https://firm-validator.dev"
+  "homepage": "https://github.com/Linol-Hamelton/firm#readme"
 }

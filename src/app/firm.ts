@@ -63,7 +63,7 @@ import {
   set,
 } from '../core/validators/composites/index.js';
 
-import { compile, compileSchema } from '../core/compiler/index.js';
+import { compile } from '../core/compiler/index.js';
 
 // Types
 import type { Schema, Infer, InferInput, CompiledValidator } from '../common/types/schema.js';
@@ -336,6 +336,84 @@ export const s = {
    * Void validator (same as undefined).
    */
   void: voidType,
+
+  // ===========================================================================
+  // COERCE (Type Coercion)
+  // ===========================================================================
+
+  /**
+   * Coercing validators that automatically convert types.
+   *
+   * @example
+   * ```ts
+   * s.coerce.string() // any value → string
+   * s.coerce.number() // "42" → 42
+   * s.coerce.boolean() // "true" → true, 1 → true
+   * s.coerce.date() // "2024-01-01" → Date
+   * ```
+   */
+  coerce: {
+    /**
+     * Coerce any value to string using String(value).
+     */
+    string(): StringValidator {
+      return string().preprocess((val) => {
+        if (val === null || val === undefined) return val;
+        return String(val);
+      }) as unknown as StringValidator;
+    },
+
+    /**
+     * Coerce string to number using Number(value).
+     */
+    number(): NumberValidator {
+      return number().preprocess((val) => {
+        if (val === null || val === undefined) return val;
+        if (typeof val === 'number') return val;
+        if (typeof val === 'string') {
+          const parsed = Number(val);
+          return isNaN(parsed) ? val : parsed;
+        }
+        if (typeof val === 'boolean') return val ? 1 : 0;
+        return val;
+      }) as unknown as NumberValidator;
+    },
+
+    /**
+     * Coerce value to boolean.
+     * - Strings: "true", "1", "yes", "on" → true; "false", "0", "no", "off" → false
+     * - Numbers: 0 → false, other → true
+     */
+    boolean(): BooleanValidator {
+      return boolean().preprocess((val) => {
+        if (val === null || val === undefined) return val;
+        if (typeof val === 'boolean') return val;
+        if (typeof val === 'string') {
+          const lower = val.toLowerCase();
+          if (['true', '1', 'yes', 'on'].includes(lower)) return true;
+          if (['false', '0', 'no', 'off'].includes(lower)) return false;
+          return val;
+        }
+        if (typeof val === 'number') return val !== 0;
+        return val;
+      }) as unknown as BooleanValidator;
+    },
+
+    /**
+     * Coerce string or number to Date.
+     */
+    date(): DateValidator {
+      return date().preprocess((val) => {
+        if (val === null || val === undefined) return val;
+        if (val instanceof Date) return val;
+        if (typeof val === 'string' || typeof val === 'number') {
+          const parsed = new Date(val);
+          return isNaN(parsed.getTime()) ? val : parsed;
+        }
+        return val;
+      }) as unknown as DateValidator;
+    },
+  },
 
   // ===========================================================================
   // UTILITIES

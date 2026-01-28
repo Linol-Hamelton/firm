@@ -106,7 +106,7 @@ export class StringValidator extends BaseSchema<string, StringSchemaConfig> {
     return ok(result);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (typeof value !== 'string') return false;
 
     let result = value;
@@ -303,7 +303,7 @@ export class StringValidator extends BaseSchema<string, StringSchemaConfig> {
  * Specialized email validator with better error messages.
  */
 class EmailValidator extends StringValidator {
-  protected _validate(value: unknown, path: string): ValidationResult<string> {
+  protected override _validate(value: unknown, path: string): ValidationResult<string> {
     if (typeof value !== 'string') {
       return err(createError(ErrorCode.NOT_STRING, 'Expected string', path));
     }

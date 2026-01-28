@@ -35,7 +35,7 @@ export class BooleanValidator extends BaseSchema<boolean, SchemaConfig> {
     return ok(value);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     return typeof value === 'boolean';
   }
 

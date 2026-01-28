@@ -42,8 +42,8 @@ export class UnionValidator<T extends readonly Schema<unknown>[]> extends BaseSc
 > {
   readonly _type = 'union' as const;
 
-  constructor(options: T) {
-    super({ options });
+  constructor(options: T, baseConfig: Partial<SchemaConfig> = {}) {
+    super({ ...baseConfig, options });
   }
 
   protected _validate(value: unknown, path: string): ValidationResult<InferUnionType<T>> {
@@ -72,7 +72,7 @@ export class UnionValidator<T extends readonly Schema<unknown>[]> extends BaseSc
     );
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     for (const schema of this.config.options) {
       if (schema.is(value)) return true;
     }
@@ -80,7 +80,8 @@ export class UnionValidator<T extends readonly Schema<unknown>[]> extends BaseSc
   }
 
   protected _clone(config: Partial<UnionConfig<T>>): this {
-    return new UnionValidator(config.options ?? this.config.options) as this;
+    const merged = { ...this.config, ...config };
+    return new UnionValidator(merged.options, merged) as this;
   }
 
   /**
@@ -110,8 +111,8 @@ export class DiscriminatedUnionValidator<
   readonly _type = 'discriminated_union' as const;
   private readonly optionMap: Map<unknown, Schema<unknown>>;
 
-  constructor(discriminator: K, options: T) {
-    super({ discriminator, options });
+  constructor(discriminator: K, options: T, baseConfig: Partial<SchemaConfig> = {}) {
+    super({ ...baseConfig, discriminator, options });
 
     // Build lookup map for O(1) access
     this.optionMap = new Map();
@@ -181,7 +182,7 @@ export class DiscriminatedUnionValidator<
     return schema.validate(value) as ValidationResult<InferUnionType<T>>;
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     if (typeof value !== 'object' || value === null || Array.isArray(value)) {
       return false;
     }
@@ -194,9 +195,11 @@ export class DiscriminatedUnionValidator<
   }
 
   protected _clone(config: Partial<DiscriminatedUnionConfig<K, T>>): this {
+    const merged = { ...this.config, ...config };
     return new DiscriminatedUnionValidator(
-      config.discriminator ?? this.config.discriminator,
-      config.options ?? this.config.options
+      merged.discriminator,
+      merged.options,
+      merged
     ) as this;
   }
 }
@@ -215,13 +218,13 @@ export class IntersectionValidator<T extends readonly [Schema<unknown>, Schema<u
 > {
   readonly _type = 'intersection' as const;
 
-  constructor(schemas: T) {
-    super({ schemas });
+  constructor(schemas: T, baseConfig: Partial<SchemaConfig> = {}) {
+    super({ ...baseConfig, schemas });
   }
 
   protected _validate(
     value: unknown,
-    path: string
+    _path: string
   ): ValidationResult<InferIntersectionType<T>> {
     const allErrors: ValidationError[] = [];
     let merged: Record<string, unknown> = {};
@@ -247,7 +250,7 @@ export class IntersectionValidator<T extends readonly [Schema<unknown>, Schema<u
     return ok(finalResult as InferIntersectionType<T>);
   }
 
-  protected _check(value: unknown): boolean {
+  protected override _check(value: unknown): boolean {
     for (const schema of this.config.schemas) {
       if (!schema.is(value)) return false;
     }
@@ -255,7 +258,8 @@ export class IntersectionValidator<T extends readonly [Schema<unknown>, Schema<u
   }
 
   protected _clone(config: Partial<IntersectionConfig<T>>): this {
-    return new IntersectionValidator(config.schemas ?? this.config.schemas) as this;
+    const merged = { ...this.config, ...config };
+    return new IntersectionValidator(merged.schemas, merged) as this;
   }
 }
 

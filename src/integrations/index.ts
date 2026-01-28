@@ -22,6 +22,12 @@ export * as graphql from './graphql/index.js';
 export * as rest from './rest/index.js';
 export * as openapi from './openapi/index.js';
 
+// ORM Integrations
+export * as prisma from './prisma/index.js';
+export * as typeorm from './typeorm/index.js';
+export * as drizzle from './drizzle/index.js';
+export * as sequelize from './sequelize/index.js';
+
 // Backend - Re-export for convenience
 export { validate as expressValidate } from './express/index.js';
 export { firmValidatorPlugin as fastifyPlugin } from './fastify/index.js';
@@ -39,3 +45,9 @@ export { firmInput } from './trpc/index.js';
 export { firmArgs } from './graphql/index.js';
 export { createRestValidator } from './rest/index.js';
 export { generateOpenAPI } from './openapi/index.js';
+
+// ORM - Re-export for convenience
+export { createFirmMiddleware as prismaMiddleware } from './prisma/index.js';
+export { ValidatedEntity as TypeORMValidatedEntity } from './typeorm/index.js';
+export { createValidatedDb as drizzleValidatedDb } from './drizzle/index.js';
+export { addValidationHooks as sequelizeValidationHooks } from './sequelize/index.js';

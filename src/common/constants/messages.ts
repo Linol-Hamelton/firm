@@ -75,6 +75,10 @@ export const DEFAULT_MESSAGES: Record<ErrorCode, MessageTemplate> = {
   NUMBER_NOT_SAFE: 'Number must be a safe integer',
   NUMBER_NOT_MULTIPLE: ({ expected }) => `Number must be a multiple of ${expected}`,
 
+  // Date constraints
+  DATE_TOO_EARLY: ({ min }) => `Date must be after ${min}`,
+  DATE_TOO_LATE: ({ max }) => `Date must be before ${max}`,
+
   // Array constraints
   ARRAY_TOO_SHORT: ({ min }) => `Array must have at least ${min} items`,
   ARRAY_TOO_LONG: ({ max }) => `Array must have at most ${max} items`,

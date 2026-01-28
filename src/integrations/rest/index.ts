@@ -50,7 +50,7 @@ export interface ValidationOptions {
   /** Throw error on validation failure (default: false) */
   throwOnError?: boolean;
   /** Custom error handler */
-  onError?: (errors: any[]) => void;
+  onError?: (errors: readonly any[]) => void;
 }
 
 // ============================================================================
@@ -379,7 +379,7 @@ type RestClient<T extends Record<string, EndpointConfig>> = {
  * res.status(400).json(formatted);
  * ```
  */
-export function formatRestError(errors: any[]): {
+export function formatRestError(errors: readonly any[]): {
   error: string;
   message: string;
   details: any[];
@@ -408,19 +408,29 @@ export function formatRestError(errors: any[]): {
 export function createRestError(
   status: number,
   message: string,
-  errors?: any[]
+  errors?: readonly any[]
 ): {
   status: number;
   error: string;
   message: string;
-  errors?: any[];
+  errors?: readonly any[];
 } {
-  return {
+  const result: {
+    status: number;
+    error: string;
+    message: string;
+    errors?: readonly any[];
+  } = {
     status,
     error: getErrorName(status),
     message,
-    errors,
   };
+
+  if (errors !== undefined) {
+    result.errors = errors;
+  }
+
+  return result;
 }
 
 function getErrorName(status: number): string {

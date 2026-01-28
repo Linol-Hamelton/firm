@@ -26,7 +26,7 @@
  */
 
 import type { Schema } from '../../common/types/schema.js';
-import { ValidationError } from '../../common/errors/validation-error.js';
+import { ValidationException } from '../../common/errors/validation-error.js';
 import type { GraphQLError } from 'graphql';
 
 // ============================================================================
@@ -35,7 +35,7 @@ import type { GraphQLError } from 'graphql';
 
 export interface FirmResolverOptions {
   /** Custom error formatter */
-  errorFormatter?: (errors: any[]) => GraphQLError;
+  errorFormatter?: (errors: readonly any[]) => GraphQLError;
 }
 
 export type Resolver<TArgs = any, TResult = any, TContext = any> = (
@@ -90,7 +90,7 @@ export function firmArgs<TArgs, TResult, TContext = any>(
         throw options.errorFormatter(result.errors);
       }
 
-      throw new ValidationError('Arguments validation failed', result.errors);
+      throw new ValidationException(result.errors, 'Arguments validation failed');
     }
 
     // Call resolver with validated args
@@ -191,9 +191,9 @@ export function createFirmDirective(schemas: Record<string, Schema<any>>) {
         const result = schema.validate(args);
 
         if (!result.ok) {
-          throw new ValidationError(
-            'Arguments validation failed',
-            result.errors
+          throw new ValidationException(
+            result.errors,
+            'Arguments validation failed'
           );
         }
 
@@ -310,7 +310,7 @@ export function firmContext<T>(
       return result.data;
     }
 
-    throw new ValidationError('Context validation failed', result.errors);
+    throw new ValidationException(result.errors, 'Context validation failed');
   };
 }
 

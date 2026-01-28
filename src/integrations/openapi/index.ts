@@ -119,10 +119,15 @@ export interface OpenAPISchema {
   maximum?: number;
   minLength?: number;
   maxLength?: number;
+  minItems?: number;
+  maxItems?: number;
   pattern?: string;
   description?: string;
   nullable?: boolean;
   default?: any;
+  const?: any;
+  oneOf?: OpenAPISchema[];
+  additionalProperties?: OpenAPISchema | boolean;
   $ref?: string;
 }
 

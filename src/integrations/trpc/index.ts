@@ -28,7 +28,7 @@
  */
 
 import type { Schema } from '../../common/types/schema.js';
-import { ValidationError } from '../../common/errors/validation-error.js';
+import { ValidationException } from '../../common/errors/validation-error.js';
 
 // ============================================================================
 // TYPES
@@ -36,7 +36,7 @@ import { ValidationError } from '../../common/errors/validation-error.js';
 
 export interface FirmInputOptions {
   /** Custom error transformer */
-  errorTransformer?: (errors: any[]) => Error;
+  errorTransformer?: (errors: readonly any[]) => Error;
 }
 
 // ============================================================================
@@ -85,7 +85,7 @@ export function firmInput<T>(
     }
 
     // Default error format for tRPC
-    throw new ValidationError('Input validation failed', result.errors);
+    throw new ValidationException(result.errors, 'Input validation failed');
   };
 }
 
@@ -169,7 +169,7 @@ export function firmOutput<T>(
     }
 
     // Default error format for tRPC
-    throw new ValidationError('Output validation failed', result.errors);
+    throw new ValidationException(result.errors, 'Output validation failed');
   };
 }
 
@@ -259,7 +259,7 @@ export function firmContext<T>(
       return result.data;
     }
 
-    throw new ValidationError('Context validation failed', result.errors);
+    throw new ValidationException(result.errors, 'Context validation failed');
   };
 }
 

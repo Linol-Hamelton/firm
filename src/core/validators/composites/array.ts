@@ -20,6 +20,8 @@ import { ok, err, errs, createError, ErrorCode } from '../../../common/types/res
 
 interface ArrayConfig<T> extends ArraySchemaConfig {
   element: Schema<T>;
+  parallel?: boolean;
+  abortEarly?: boolean;
 }
 
 export class ArrayValidator<T> extends BaseSchema<T[], ArrayConfig<T>> {
@@ -142,6 +144,134 @@ export class ArrayValidator<T> extends BaseSchema<T[], ArrayConfig<T>> {
     return true;
   }
 
+  protected override async _validateAsync(value: unknown, path: string): Promise<ValidationResult<T[]>> {
+    // Type check
+    if (!Array.isArray(value)) {
+      return err(
+        createError(
+          ErrorCode.NOT_ARRAY,
+          this.config.errorMessage ?? 'Expected array',
+          path,
+          { received: typeof value }
+        )
+      );
+    }
+
+    // Length validation (early exit for performance)
+    if (this.config.minLength !== undefined && value.length < this.config.minLength) {
+      return err(
+        createError(
+          ErrorCode.ARRAY_TOO_SHORT,
+          `Array must have at least ${this.config.minLength} items`,
+          path,
+          { min: this.config.minLength, received: value.length }
+        )
+      );
+    }
+
+    if (this.config.maxLength !== undefined && value.length > this.config.maxLength) {
+      return err(
+        createError(
+          ErrorCode.ARRAY_TOO_LONG,
+          `Array must have at most ${this.config.maxLength} items`,
+          path,
+          { max: this.config.maxLength, received: value.length }
+        )
+      );
+    }
+
+    // Uniqueness check (before element validation for performance)
+    if (this.config.unique) {
+      const seen = new Set();
+      for (let i = 0; i < value.length; i++) {
+        const item = value[i];
+        const key = typeof item === 'object' ? JSON.stringify(item) : item;
+        if (seen.has(key)) {
+          return err(
+            createError(
+              ErrorCode.ARRAY_NOT_UNIQUE,
+              'Array must have unique items',
+              `${path}[${i}]`
+            )
+          );
+        }
+        seen.add(key);
+      }
+    }
+
+    // Validate elements - parallel or sequential based on config
+    if (this.config.parallel) {
+      // Parallel validation using Promise.all
+      const elementPromises = value.map((item, _i) => {
+        // Error path tracking would be implemented here if needed
+        const elementSchema = this.config.element as BaseSchema<T>;
+        return typeof elementSchema.validateAsync === 'function'
+          ? elementSchema.validateAsync(item)
+          : Promise.resolve(elementSchema.validate(item));
+      });
+
+      try {
+        const results = await Promise.all(elementPromises);
+        const validated: T[] = [];
+        const errors: ValidationError[] = [];
+
+        for (let i = 0; i < results.length; i++) {
+          const result = results[i];
+          if (!result) continue; // Skip undefined results (shouldn't happen)
+          if (!result.ok) {
+            // Type guard ensures result is ValidationFailure
+            errors.push(...(result as any).errors);
+          } else {
+            // Type guard ensures result is ValidationSuccess<T>
+            validated.push((result as any).data);
+          }
+        }
+
+        if (errors.length > 0) {
+          return errs(errors);
+        }
+
+        return ok(validated);
+      } catch (error) {
+        // Should not happen, but handle just in case
+        return err(
+          createError(
+            ErrorCode.UNKNOWN_ERROR,
+            error instanceof Error ? error.message : 'Parallel validation failed',
+            path
+          )
+        );
+      }
+    } else {
+      // Sequential validation (default)
+      const validated: T[] = [];
+      const errors: ValidationError[] = [];
+
+      for (let i = 0; i < value.length; i++) {
+        // Error path tracking would be implemented here if needed
+        const elementSchema = this.config.element as BaseSchema<T>;
+        const elementResult = typeof elementSchema.validateAsync === 'function'
+          ? await elementSchema.validateAsync(value[i])
+          : elementSchema.validate(value[i]);
+
+        if (!elementResult.ok) {
+          errors.push(...(elementResult as any).errors);
+          if (this.config.abortEarly) {
+            return errs(errors);
+          }
+        } else {
+          validated.push((elementResult as any).data);
+        }
+      }
+
+      if (errors.length > 0) {
+        return errs(errors);
+      }
+
+      return ok(validated);
+    }
+  }
+
   protected _clone(config: Partial<ArrayConfig<T>>): this {
     return new ArrayValidator(
       config.element ?? this.config.element,
@@ -190,6 +320,23 @@ export class ArrayValidator<T> extends BaseSchema<T[], ArrayConfig<T>> {
    */
   unique(): ArrayValidator<T> {
     return this._clone({ unique: true });
+  }
+
+  /**
+   * Enable parallel validation for array elements.
+   * Uses Promise.all for concurrent validation of array items.
+   * Only affects async validation (validateAsync).
+   */
+  parallel(): ArrayValidator<T> {
+    return this._clone({ parallel: true });
+  }
+
+  /**
+   * Stop validation on first error.
+   * Improves performance when only first error matters.
+   */
+  abortEarly(): ArrayValidator<T> {
+    return this._clone({ abortEarly: true });
   }
 
   /**

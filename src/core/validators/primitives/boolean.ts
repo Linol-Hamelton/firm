@@ -42,6 +42,26 @@ export class BooleanValidator extends BaseSchema<boolean, SchemaConfig> {
   protected _clone(config: Partial<SchemaConfig>): this {
     return new BooleanValidator({ ...this.config, ...config }) as this;
   }
+
+  /**
+   * Require the value to be true.
+   */
+  true(): BooleanValidator {
+    return this.refine(
+      (v) => v === true,
+      'Value must be true'
+    ) as unknown as BooleanValidator;
+  }
+
+  /**
+   * Require the value to be false.
+   */
+  false(): BooleanValidator {
+    return this.refine(
+      (v) => v === false,
+      'Value must be false'
+    ) as unknown as BooleanValidator;
+  }
 }
 
 // ============================================================================

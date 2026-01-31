@@ -219,6 +219,33 @@ export class ObjectValidator<T extends ObjectShape> extends BaseSchema<
   }
 
   /**
+   * Make all fields optional recursively (deep partial).
+   */
+  deepPartial(): ObjectValidator<{ [K in keyof T]: Schema<T[K]['_output'] | undefined> }> {
+    const newShape: ObjectShape = {};
+    for (const key in this.config.shape) {
+      const schema = this.config.shape[key]!;
+      // Recursively apply deepPartial to nested objects
+      if (schema._type === 'object') {
+        newShape[key] = (schema as any).deepPartial() as Schema<unknown>;
+      } else if (schema._type === 'array') {
+        // For arrays, we need to handle the element type
+        const elementSchema = (schema as any).config.element;
+        if (elementSchema?._type === 'object') {
+          const deepPartialElement = (elementSchema as any).deepPartial();
+          newShape[key] = (schema as any)._clone({ element: deepPartialElement }) as Schema<unknown>;
+        } else {
+          newShape[key] = schema.optional() as Schema<unknown>;
+        }
+      } else {
+        newShape[key] = schema.optional() as Schema<unknown>;
+      }
+    }
+    const unknownKeys = this.config.unknownKeys ?? 'strip';
+    return new ObjectValidator(newShape, { unknownKeys }) as unknown as ObjectValidator<{ [K in keyof T]: Schema<T[K]['_output'] | undefined> }>;
+  }
+
+  /**
    * Make all fields required.
    */
   required(): ObjectValidator<{ [K in keyof T]: Schema<NonNullable<T[K]['_output']>> }> {

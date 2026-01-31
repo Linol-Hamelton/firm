@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { s } from '../../../src/index.js';
+import { s } from '../../../src/index';
 
 describe('StringValidator', () => {
   describe('basic validation', () => {

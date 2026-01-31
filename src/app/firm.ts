@@ -34,6 +34,10 @@ import {
   nativeEnum,
   DateValidator,
   date,
+  BigIntValidator,
+  bigint as bigintValidator,
+  SymbolValidator,
+  symbol as symbolValidator,
   nullType,
   undefinedType,
   any,
@@ -61,6 +65,8 @@ import {
   map,
   SetValidator,
   set,
+  lazy,
+  recursive,
 } from '../core/validators/composites/index.js';
 
 import { compile } from '../core/compiler/index.js';
@@ -147,6 +153,26 @@ export const s = {
    * ```
    */
   date,
+
+  /**
+   * BigInt validator.
+   *
+   * @example
+   * ```ts
+   * s.bigint() // any bigint
+   * ```
+   */
+  bigint: bigintValidator,
+
+  /**
+   * Symbol validator.
+   *
+   * @example
+   * ```ts
+   * s.symbol() // any symbol
+   * ```
+   */
+  symbol: symbolValidator,
 
   // ===========================================================================
   // LITERALS & ENUMS
@@ -303,6 +329,31 @@ export const s = {
    */
   intersection,
 
+  /**
+   * Lazy validator for recursive schemas.
+   *
+   * @example
+   * ```ts
+   * interface TreeNode {
+   *   value: number;
+   *   children: TreeNode[];
+   * }
+   *
+   * const treeSchema = s.lazy(() =>
+   *   s.object({
+   *     value: s.number(),
+   *     children: s.array(treeSchema),
+   *   })
+   * );
+   * ```
+   */
+  lazy,
+
+  /**
+   * Alias for `lazy` (for compatibility).
+   */
+  recursive,
+
   // ===========================================================================
   // SPECIAL TYPES
   // ===========================================================================
@@ -412,6 +463,49 @@ export const s = {
         }
         return val;
       }) as unknown as DateValidator;
+    },
+
+    /**
+     * Coerce value to BigInt.
+     * - Strings: "123" → 123n
+     * - Numbers: 123 → 123n
+     * - BigInt: returns as-is
+     */
+    bigint(): BigIntValidator {
+      return bigintValidator().preprocess((val: unknown) => {
+        if (val === null || val === undefined) return val;
+        if (typeof val === 'bigint') return val;
+        if (typeof val === 'string') {
+          try {
+            return BigInt(val);
+          } catch {
+            return val;
+          }
+        }
+        if (typeof val === 'number') {
+          try {
+            return BigInt(Math.trunc(val));
+          } catch {
+            return val;
+          }
+        }
+        if (typeof val === 'boolean') return val ? 1n : 0n;
+        return val;
+      }) as unknown as BigIntValidator;
+    },
+
+    /**
+     * Coerce value to Symbol.
+     * - Strings: "key" → Symbol("key")
+     * - Numbers: 123 → Symbol("123")
+     * - Returns Symbol(value.toString())
+     */
+    symbol(): SymbolValidator {
+      return symbolValidator().preprocess((val: unknown) => {
+        if (val === null || val === undefined) return val;
+        if (typeof val === 'symbol') return val;
+        return Symbol(String(val));
+      }) as unknown as SymbolValidator;
     },
   },
 

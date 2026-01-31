@@ -158,6 +158,9 @@ export const ErrorCode = {
 
   // Transform
   TRANSFORM_FAILED: 'TRANSFORM_FAILED',
+  
+  // System/Unknown
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];

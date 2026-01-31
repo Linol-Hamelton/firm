@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { s } from '../../../src/index.js';
+import { s } from '../../../src/index';
 import { firmInput, firmOutput } from '../../../src/integrations/trpc/index.js';
 import { ValidationError } from '../../../src/common/errors/validation-error.js';
 

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { s, compile } from '../../../src/index.js';
+import { s, compile } from '../../../src/index';
 
 describe('SchemaCompiler', () => {
   describe('compile() function', () => {

@@ -252,6 +252,14 @@ export class DateValidator extends BaseSchema<Date, DateConfig> {
   max(date: Date): DateValidator {
     return this._clone({ max: date });
   }
+
+  after(date: Date): DateValidator {
+    return this._clone({ min: date });
+  }
+
+  before(date: Date): DateValidator {
+    return this._clone({ max: date });
+  }
 }
 
 // ============================================================================
@@ -301,6 +309,74 @@ export class UndefinedValidator extends BaseSchema<undefined> {
 
   protected _clone(config: Partial<SchemaConfig>): this {
     return new UndefinedValidator({ ...this.config, ...config }) as this;
+  }
+}
+
+// ============================================================================
+// BIGINT VALIDATOR
+// ============================================================================
+
+export class BigIntValidator extends BaseSchema<bigint> {
+  readonly _type = 'bigint' as const;
+
+  constructor(config: SchemaConfig = {}) {
+    super(config);
+  }
+
+  protected _validate(value: unknown, path: string): ValidationResult<bigint> {
+    if (typeof value !== 'bigint') {
+      return err(
+        createError(
+          ErrorCode.NOT_BIGINT,
+          this.config.errorMessage ?? 'Expected bigint',
+          path,
+          { received: typeof value }
+        )
+      );
+    }
+    return ok(value);
+  }
+
+  protected override _check(value: unknown): boolean {
+    return typeof value === 'bigint';
+  }
+
+  protected _clone(config: Partial<SchemaConfig>): this {
+    return new BigIntValidator({ ...this.config, ...config }) as this;
+  }
+}
+
+// ============================================================================
+// SYMBOL VALIDATOR
+// ============================================================================
+
+export class SymbolValidator extends BaseSchema<symbol> {
+  readonly _type = 'symbol' as const;
+
+  constructor(config: SchemaConfig = {}) {
+    super(config);
+  }
+
+  protected _validate(value: unknown, path: string): ValidationResult<symbol> {
+    if (typeof value !== 'symbol') {
+      return err(
+        createError(
+          ErrorCode.NOT_SYMBOL,
+          this.config.errorMessage ?? 'Expected symbol',
+          path,
+          { received: typeof value }
+        )
+      );
+    }
+    return ok(value);
+  }
+
+  protected override _check(value: unknown): boolean {
+    return typeof value === 'symbol';
+  }
+
+  protected _clone(config: Partial<SchemaConfig>): this {
+    return new SymbolValidator({ ...this.config, ...config }) as this;
   }
 }
 
@@ -409,6 +485,14 @@ export function nativeEnum<T extends EnumLike>(enumObj: T): NativeEnumValidator<
 
 export function date(config?: DateConfig): DateValidator {
   return new DateValidator(config);
+}
+
+export function bigint(config?: SchemaConfig): BigIntValidator {
+  return new BigIntValidator(config);
+}
+
+export function symbol(config?: SchemaConfig): SymbolValidator {
+  return new SymbolValidator(config);
 }
 
 export const nullType = (): NullValidator => new NullValidator();

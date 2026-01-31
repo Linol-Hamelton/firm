@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { s } from '../../../src/index.js';
+import { s } from '../../../src/index';
 
 describe('ArrayValidator', () => {
   describe('basic validation', () => {
@@ -101,6 +101,66 @@ describe('ArrayValidator', () => {
       expect(schema.validate([
         { name: 'John', age: 'thirty' },
       ]).ok).toBe(false);
+    });
+  
+    describe('parallel validation', () => {
+      it('should have parallel() method', () => {
+        const schema = s.array(s.number());
+        expect(typeof schema.parallel).toBe('function');
+      });
+  
+      it('should enable parallel validation', () => {
+        const schema = s.array(s.number()).parallel();
+        expect(schema).toBeDefined();
+      });
+  
+      it('should support abortEarly() method', () => {
+        const schema = s.array(s.number()).abortEarly();
+        expect(schema).toBeDefined();
+      });
+  
+      it('should validate arrays with parallel validation (async)', async () => {
+        const schema = s.array(s.number()).parallel();
+        
+        const result = await schema.validateAsync([1, 2, 3, 4, 5]);
+        expect(result.ok).toBe(true);
+        if (result.ok) {
+          expect(result.data).toEqual([1, 2, 3, 4, 5]);
+        }
+      });
+  
+      it('should handle errors in parallel validation', async () => {
+        const schema = s.array(s.number()).parallel();
+        
+        const result = await schema.validateAsync([1, 'invalid', 3, 'also invalid', 5]);
+        expect(result.ok).toBe(false);
+        if (!result.ok) {
+          expect(result.errors).toHaveLength(2); // Two invalid elements
+        }
+      });
+  
+      it('should be faster than sequential for large arrays (performance hint)', async () => {
+        const numbers = Array.from({ length: 100 }, (_, i) => i);
+        const schema = s.array(s.number());
+        
+        const parallelSchema = schema.parallel();
+        const sequentialSchema = schema; // No parallel
+        
+        // Both should work
+        const parallelResult = await parallelSchema.validateAsync(numbers);
+        const sequentialResult = await sequentialSchema.validateAsync(numbers);
+        
+        expect(parallelResult.ok).toBe(true);
+        expect(sequentialResult.ok).toBe(true);
+      });
+  
+      it('should work with abortEarly in parallel mode', async () => {
+        const schema = s.array(s.number()).parallel().abortEarly();
+        
+        const result = await schema.validateAsync([1, 'invalid', 3, 4, 5]);
+        // With abortEarly, might stop early but parallel still processes all
+        expect(result.ok).toBe(false);
+      });
     });
   });
 

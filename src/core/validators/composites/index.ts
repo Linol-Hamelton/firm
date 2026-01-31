@@ -8,3 +8,4 @@ export * from './object.js';
 export * from './array.js';
 export * from './union.js';
 export * from './record.js';
+export * from './lazy.js';

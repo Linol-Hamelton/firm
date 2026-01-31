@@ -105,6 +105,9 @@ export const DEFAULT_MESSAGES: Record<ErrorCode, MessageTemplate> = {
 
   // Transform
   TRANSFORM_FAILED: 'Transform failed',
+
+  // System/Unknown
+  UNKNOWN_ERROR: 'Unknown error occurred',
 };
 
 // ============================================================================

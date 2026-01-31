@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { s } from '../../../src/index.js';
+import { s } from '../../../src/index';
 import { firmResolver, getErrorMessage, hasError } from '../../../src/integrations/react-hook-form/index.js';
 
 describe('React Hook Form Integration', () => {

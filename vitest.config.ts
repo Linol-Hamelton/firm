@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { resolve } from 'path';
 
 export default defineConfig({
   test: {
@@ -30,5 +31,12 @@ export default defineConfig({
         lines: 85,
       },
     },
+  },
+  resolve: {
+    alias: {
+      // Support .js imports in TypeScript files
+      '^(\\.{1,2}/.*)\\.js$': '$1',
+    },
+    extensions: ['.ts', '.js', '.json'],
   },
 });

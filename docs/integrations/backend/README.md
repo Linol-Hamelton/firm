@@ -33,6 +33,19 @@ FIRM provides first-class support for popular backend frameworks:
    }
    ```
 
+5. **[NestJS](./nestjs.md)** - Progressive Node.js framework
+   ```typescript
+   import { FirmValidationPipe } from 'firm-validator/integrations/nestjs';
+   @UsePipes(new FirmValidationPipe(userSchema))
+   async createUser(@Body() body: unknown) { ... }
+   ```
+
+6. **[Koa](./koa.md)** - Next generation web framework
+   ```typescript
+   import { validateBody } from 'firm-validator/integrations/koa';
+   app.use(validateBody(userSchema));
+   ```
+
 ## Quick Comparison
 
 | Framework | Integration Type | TypeScript | Async | Performance |
@@ -41,6 +54,8 @@ FIRM provides first-class support for popular backend frameworks:
 | Fastify | Plugin | ✅ | ✅ | Excellent |
 | Hono | Middleware | ✅ | ✅ | Excellent |
 | Next.js | Helper | ✅ | ✅ | Good |
+| NestJS | Pipe | ✅ | ✅ | Excellent |
+| Koa | Middleware | ✅ | ✅ | Excellent |
 
 ## Common Patterns
 

@@ -2,7 +2,7 @@
  * Schema Compiler Tests
  */
 
-import { s, compile } from '../../../src/index.ts';
+import { s, compile } from '../../../src/index';
 
 describe('SchemaCompiler', () => {
   describe('compile() function', () => {

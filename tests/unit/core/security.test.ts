@@ -9,7 +9,7 @@
  * - Malicious input patterns
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 import { validateObjectSecurity, DEFAULT_SECURITY_CONFIG } from '../../../src/common/utils/object-utils';
 import { validateRegexSecurity } from '../../../src/common/utils/regex-utils';
 import { ErrorCode } from '../../../src/common/types/result';

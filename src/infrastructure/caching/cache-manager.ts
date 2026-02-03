@@ -36,6 +36,12 @@ export interface SerializedCache {
   version: string;
   timestamp: number;
   strategy: CacheStrategy;
+  stats: {
+    hits: number;
+    misses: number;
+    size: number;
+    hitRate: number;
+  };
   entries: Array<{
     key: string;
     result: any;
@@ -103,12 +109,19 @@ export class CacheSerializer {
 
   serialize(cache: ValidationCache): SerializedCache {
     const stats = cache.getStats();
+    const entries = (cache as any).getSerializableEntries();
 
     return {
       version: CacheSerializer.VERSION,
       timestamp: Date.now(),
-      strategy: { type: 'lru', maxSize: 1000 },
-      entries: [],
+      strategy: (cache as any).strategy || { type: 'lru', maxSize: 1000 },
+      stats: {
+        hits: stats.hits,
+        misses: stats.misses,
+        size: stats.size,
+        hitRate: stats.hitRate,
+      },
+      entries,
     };
   }
 
@@ -116,7 +129,23 @@ export class CacheSerializer {
     if (data.version !== CacheSerializer.VERSION) {
       throw new Error(`Unsupported cache version: ${data.version}`);
     }
-    return new ValidationCache(data.strategy);
+
+    const cache = new ValidationCache(data.strategy);
+
+    // Restore cache entries
+    if (data.entries && data.entries.length > 0) {
+      (cache as any).restoreEntries(data.entries);
+    }
+
+    // Restore statistics if available
+    if (data.stats) {
+      (cache as any).stats = {
+        hits: data.stats.hits,
+        misses: data.stats.misses,
+      };
+    }
+
+    return cache;
   }
 
   async saveToFile(cache: ValidationCache, filename: string): Promise<void> {

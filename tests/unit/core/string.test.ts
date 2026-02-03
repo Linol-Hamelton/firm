@@ -2,7 +2,7 @@
  * String Validator Tests
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 
 describe('StringValidator', () => {
   describe('basic validation', () => {

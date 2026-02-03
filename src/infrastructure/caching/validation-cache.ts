@@ -228,6 +228,53 @@ export class ValidationCache {
   }
 
   /**
+   * Get all serializable cache entries (primitives only).
+   * WeakMap entries cannot be serialized.
+   */
+  getSerializableEntries(): Array<{
+    key: string;
+    result: any;
+    timestamp: number;
+    hits: number;
+  }> {
+    const entries: Array<{
+      key: string;
+      result: any;
+      timestamp: number;
+      hits: number;
+    }> = [];
+
+    for (const [key, entry] of this.primitiveCache) {
+      entries.push({
+        key,
+        result: entry.result,
+        timestamp: entry.timestamp,
+        hits: entry.hits,
+      });
+    }
+
+    return entries;
+  }
+
+  /**
+   * Restore cache entries from serialized data.
+   */
+  restoreEntries(entries: Array<{
+    key: string;
+    result: any;
+    timestamp: number;
+    hits: number;
+  }>): void {
+    for (const entry of entries) {
+      this.primitiveCache.set(entry.key, {
+        result: entry.result,
+        timestamp: entry.timestamp,
+        hits: entry.hits,
+      });
+    }
+  }
+
+  /**
    * Generate cache key for primitive values.
    */
   private getKey(data: unknown, schemaId: string): string {

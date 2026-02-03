@@ -6,7 +6,7 @@
  */
 
 import fc from 'fast-check';
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 
 // ============================================================================
 // STRING SCHEMA PROPERTIES

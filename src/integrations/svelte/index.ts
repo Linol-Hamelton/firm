@@ -76,6 +76,12 @@ export interface CreateFirmStoreOptions {
   validateOnChange?: boolean;
   /** Validate on blur */
   validateOnBlur?: boolean;
+  /** Custom context to pass to validation */
+  context?: Record<string, unknown>;
+  /** Validation mode */
+  mode?: 'eager' | 'lazy';
+  /** Debounce delay in ms for onChange validation */
+  debounceMs?: number;
 }
 
 // ============================================================================
@@ -153,7 +159,9 @@ export function createFirmStore<T extends Record<string, any>>(
     update((s) => ({ ...s, isValidating: true, errors: {} }));
 
     try {
-      const result = schema.validate(state.values);
+      const result = schema.validate(state.values, {
+        context: options.context,
+      });
 
       if (result.ok) {
         update((s) => ({
@@ -351,9 +359,11 @@ export function createFirmField<T>(
  * <input use:firmAction={emailSchema} />
  * ```
  */
-export function firmAction(node: HTMLInputElement, _schema: Schema<any>) {
+export function firmAction(node: HTMLInputElement, schema: Schema<any>, actionOptions: { context?: Record<string, unknown> } = {}) {
   const handleBlur = async () => {
-    const result = schema.validate(node.value);
+    const result = schema.validate(node.value, {
+      context: actionOptions.context,
+    });
 
     if (!result.ok) {
       node.classList.add('invalid');

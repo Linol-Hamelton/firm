@@ -2,7 +2,7 @@
  * Number Validator Tests
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 
 describe('NumberValidator', () => {
   describe('basic validation', () => {

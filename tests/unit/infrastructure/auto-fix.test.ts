@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 import {
   AutoFixer,
   withAutoFix,
@@ -12,7 +12,7 @@ import {
   enableAutoFix,
   disableAutoFix,
 } from '../../../src/infrastructure/auto-fix/index';
-import { withCache } from '../../../src/infrastructure/caching/index.ts';
+import { withCache } from '../../../src/infrastructure/caching/index';
 
 describe('Auto-Fix Mode', () => {
   describe('AutoFixer', () => {

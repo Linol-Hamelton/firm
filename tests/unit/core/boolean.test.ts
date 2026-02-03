@@ -2,7 +2,7 @@
  * Boolean Validator Tests
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 
 describe('BooleanValidator', () => {
   describe('basic validation', () => {

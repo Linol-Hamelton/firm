@@ -52,6 +52,17 @@ export interface FirmResolverOptions {
   abortEarly?: boolean;
   /** Transform error messages */
   errorMap?: (error: ValidationError) => string;
+  /** Custom context to pass to validation */
+  context?: Record<string, unknown>;
+  /** Resolver-specific options */
+  resolverOptions?: {
+    /** Fields to validate (default: all) */
+    fields?: string[];
+    /** Validation mode (default: 'onChange') */
+    mode?: 'onChange' | 'onBlur' | 'onSubmit' | 'onTouched' | 'all';
+    /** Re-validate mode after first submit */
+    reValidateMode?: 'onChange' | 'onBlur' | 'onSubmit';
+  };
 }
 
 // ============================================================================
@@ -81,10 +92,29 @@ export function firmResolver<T extends Record<string, any>>(
   schema: Schema<T>,
   options: FirmResolverOptions = {}
 ): Resolver<T> {
-  return async (values, context, resolverOptions) => {
+  return async (values, formContext, formResolverOptions) => {
+    // Merge contexts: options.context (static) + formContext (runtime)
+    const validationContext = {
+      ...options.context,
+      ...formContext,
+    };
+
+    // Filter fields if specified in resolverOptions
+    let dataToValidate = values;
+    if (formResolverOptions?.names && formResolverOptions.names.length > 0) {
+      // Only validate specified fields
+      dataToValidate = {};
+      for (const name of formResolverOptions.names) {
+        if (name && name in values) {
+          (dataToValidate as any)[name] = values[name];
+        }
+      }
+    }
+
     // Validate with FIRM
-    const result = schema.validate(values, {
+    const result = schema.validate(dataToValidate, {
       abortEarly: options.abortEarly ?? false, // Show all errors by default
+      context: validationContext,
     });
 
     if (result.ok) {

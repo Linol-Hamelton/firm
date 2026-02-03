@@ -2,7 +2,7 @@
  * React Hook Form Integration Tests
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 import { firmResolver, getErrorMessage, hasError } from '../../../src/integrations/react-hook-form/index';
 
 describe('React Hook Form Integration', () => {

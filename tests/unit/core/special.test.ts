@@ -12,7 +12,7 @@
  * - void
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 
 describe('LiteralValidator', () => {
   describe('string literals', () => {

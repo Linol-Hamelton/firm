@@ -7,6 +7,34 @@
  * Target: Zero-config integration with koa and @koa/router.
  */
 
+import type { Schema, Infer } from '../../common/types/schema.js';
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+/**
+ * Extended Koa context with validated data.
+ */
+export interface ValidatedContext<
+  TBody = unknown,
+  TQuery = unknown,
+  TParams = unknown,
+  THeaders = unknown
+> {
+  validatedBody?: TBody;
+  validatedQuery?: TQuery;
+  validatedParams?: TParams;
+  validatedHeaders?: THeaders;
+  request: any;
+  response: any;
+  body: any;
+  query: any;
+  params: any;
+  headers: any;
+  status: number;
+}
+
 // ============================================================================
 // KOA INTEGRATION
 // ============================================================================
@@ -54,8 +82,8 @@ function coerceQueryValues(query: Record<string, unknown>): Record<string, unkno
  * app.use(validateBody(userSchema));
  * ```
  */
-export function validateBody<T>(schema: any) {
-  return async (ctx: any, next: any) => {
+export function validateBody<T>(schema: Schema<T>) {
+  return async (ctx: ValidatedContext<T>, next: () => Promise<void>) => {
     try {
       const result = await (schema.validateAsync ? 
         schema.validateAsync(ctx.request.body) : 
@@ -95,8 +123,8 @@ export function validateBody<T>(schema: any) {
  * app.use(validateQuery(searchSchema));
  * ```
  */
-export function validateQuery<T>(schema: any) {
-  return async (ctx: any, next: any) => {
+export function validateQuery<T>(schema: Schema<T>) {
+  return async (ctx: ValidatedContext<unknown, T>, next: () => Promise<void>) => {
     try {
       // Coerce query parameter types from strings
       const coercedQuery = coerceQueryValues(ctx.query);
@@ -138,8 +166,8 @@ export function validateQuery<T>(schema: any) {
  * router.get('/users/:id', validateParams(idSchema), getUser);
  * ```
  */
-export function validateParams<T>(schema: any) {
-  return async (ctx: any, next: any) => {
+export function validateParams<T>(schema: Schema<T>) {
+  return async (ctx: ValidatedContext<unknown, unknown, T>, next: () => Promise<void>) => {
     try {
       const result = await (schema.validateAsync ? 
         schema.validateAsync(ctx.params) : 
@@ -178,8 +206,8 @@ export function validateParams<T>(schema: any) {
  * app.use(validateHeaders(authSchema));
  * ```
  */
-export function validateHeaders<T>(schema: any) {
-  return async (ctx: any, next: any) => {
+export function validateHeaders<T>(schema: Schema<T>) {
+  return async (ctx: ValidatedContext<unknown, unknown, unknown, T>, next: () => Promise<void>) => {
     try {
       const result = await (schema.validateAsync ? 
         schema.validateAsync(ctx.headers) : 
@@ -219,8 +247,8 @@ export function validateHeaders<T>(schema: any) {
  * app.use(validateResponse(userSchema));
  * ```
  */
-export function validateResponse<T>(schema: any) {
-  return async (ctx: any, next: any) => {
+export function validateResponse<T>(schema: Schema<T>) {
+  return async (ctx: ValidatedContext, next: () => Promise<void>) => {
     await next();
     
     // Only validate successful responses
@@ -267,13 +295,16 @@ export function createValidatedRouter() {
     /**
      * Add validated POST route.
      */
-    post<T>(path: string, options: {
-      body?: any;
-      query?: any;
-      params?: any;
-      headers?: any;
-      handler: (ctx: any) => Promise<void> | void;
-    }) {
+    post<TBody = unknown, TQuery = unknown, TParams = unknown, THeaders = unknown>(
+      path: string,
+      options: {
+        body?: Schema<TBody>;
+        query?: Schema<TQuery>;
+        params?: Schema<TParams>;
+        headers?: Schema<THeaders>;
+        handler: (ctx: ValidatedContext<TBody, TQuery, TParams, THeaders>) => Promise<void> | void;
+      }
+    ) {
       const middlewares = [];
       
       if (options.body) {
@@ -296,12 +327,15 @@ export function createValidatedRouter() {
     /**
      * Add validated GET route.
      */
-    get<T>(path: string, options: {
-      query?: any;
-      params?: any;
-      headers?: any;
-      handler: (ctx: any) => Promise<void> | void;
-    }) {
+    get<TQuery = unknown, TParams = unknown, THeaders = unknown>(
+      path: string,
+      options: {
+        query?: Schema<TQuery>;
+        params?: Schema<TParams>;
+        headers?: Schema<THeaders>;
+        handler: (ctx: ValidatedContext<unknown, TQuery, TParams, THeaders>) => Promise<void> | void;
+      }
+    ) {
       const middlewares = [];
       
       if (options.query) {
@@ -321,13 +355,16 @@ export function createValidatedRouter() {
     /**
      * Add validated PUT route.
      */
-    put<T>(path: string, options: {
-      body?: any;
-      query?: any;
-      params?: any;
-      headers?: any;
-      handler: (ctx: any) => Promise<void> | void;
-    }) {
+    put<TBody = unknown, TQuery = unknown, TParams = unknown, THeaders = unknown>(
+      path: string,
+      options: {
+        body?: Schema<TBody>;
+        query?: Schema<TQuery>;
+        params?: Schema<TParams>;
+        headers?: Schema<THeaders>;
+        handler: (ctx: ValidatedContext<TBody, TQuery, TParams, THeaders>) => Promise<void> | void;
+      }
+    ) {
       const middlewares = [];
       
       if (options.body) {
@@ -350,12 +387,15 @@ export function createValidatedRouter() {
     /**
      * Add validated DELETE route.
      */
-    delete<T>(path: string, options: {
-      query?: any;
-      params?: any;
-      headers?: any;
-      handler: (ctx: any) => Promise<void> | void;
-    }) {
+    delete<TQuery = unknown, TParams = unknown, THeaders = unknown>(
+      path: string,
+      options: {
+        query?: Schema<TQuery>;
+        params?: Schema<TParams>;
+        headers?: Schema<THeaders>;
+        handler: (ctx: ValidatedContext<unknown, TQuery, TParams, THeaders>) => Promise<void> | void;
+      }
+    ) {
       const middlewares = [];
       
       if (options.query) {
@@ -375,13 +415,16 @@ export function createValidatedRouter() {
     /**
      * Add validated PATCH route.
      */
-    patch<T>(path: string, options: {
-      body?: any;
-      query?: any;
-      params?: any;
-      headers?: any;
-      handler: (ctx: any) => Promise<void> | void;
-    }) {
+    patch<TBody = unknown, TQuery = unknown, TParams = unknown, THeaders = unknown>(
+      path: string,
+      options: {
+        body?: Schema<TBody>;
+        query?: Schema<TQuery>;
+        params?: Schema<TParams>;
+        headers?: Schema<THeaders>;
+        handler: (ctx: ValidatedContext<TBody, TQuery, TParams, THeaders>) => Promise<void> | void;
+      }
+    ) {
       const middlewares = [];
       
       if (options.body) {

@@ -2,7 +2,7 @@
  * OpenAPI Integration Tests
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 import { schemaToOpenAPI, generateOpenAPI } from '../../../src/integrations/openapi/index';
 
 describe('OpenAPI Integration', () => {

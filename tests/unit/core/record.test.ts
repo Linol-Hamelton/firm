@@ -2,7 +2,7 @@
  * Record, Map, and Set Validator Tests
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 
 describe('RecordValidator', () => {
   describe('basic validation', () => {

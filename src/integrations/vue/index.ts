@@ -78,6 +78,10 @@ export interface UseFirmValidationOptions {
   validateOnChange?: boolean;
   /** Debounce delay for validateOnChange (ms) */
   debounce?: number;
+  /** Custom context to pass to validation */
+  context?: Record<string, unknown>;
+  /** Validation mode */
+  mode?: 'eager' | 'lazy';
 }
 
 // ============================================================================
@@ -128,7 +132,9 @@ export function useFirmValidation<T extends Record<string, any>>(
     errors.value = {};
 
     try {
-      const result = schema.validate(values.value);
+      const result = schema.validate(values.value, {
+        context: options.context,
+      });
 
       if (result.ok) {
         values.value = result.data;

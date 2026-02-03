@@ -2,7 +2,7 @@
  * tRPC Integration Tests
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 import { firmInput, firmOutput } from '../../../src/integrations/trpc/index';
 import { ValidationError } from '../../../src/common/errors/validation-error';
 

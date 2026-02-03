@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { validateBody, validateQuery, validateParams, validateHeaders } from '../../../src/integrations/koa/index';
-import { s } from '../../../src/app/firm';
+import { s } from '../../../src/index';
 
 describe('Koa Integration', () => {
   describe('validateBody', () => {

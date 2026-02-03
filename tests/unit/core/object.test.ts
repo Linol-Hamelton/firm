@@ -2,7 +2,7 @@
  * Object Validator Tests
  */
 
-import { s } from '../../../src/index.ts';
+import { s } from '../../../src/index';
 
 describe('ObjectValidator', () => {
   describe('basic validation', () => {

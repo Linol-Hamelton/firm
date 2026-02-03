@@ -344,3 +344,518 @@ FIRM находится значительно ближе к TOP 1, чем по�
 Уникальные фичи (compiler, caching, auto-fix, streaming, AI errors) — это то, чего нет ни у одного конкурента. Это реальное конкурентное преимущество, на котором нужно строить позиционирование.
 
 **Следующий шаг:** выполнить Фазу 1 (Production Hardening), затем npm publish как v1.0.0.
+
+---
+
+## 9. РАСШИРЕННЫЙ ПЛАН: ДОКАЗАТЕЛЬСТВО ОБЕЩАНИЙ ИЗ README.md
+
+### 9.1 GAP ANALYSIS: Обещания vs Реальность
+
+После детального анализа README.md и кодовой базы выявлены следующие расхождения:
+
+| Компонент README | Статус в README | Реальный статус | Действие |
+|------------------|-----------------|-----------------|----------|
+| **Revolutionary Features** | "⏳ Coming soon" (все 10) | **8/10 реализовано** | Обновить README, убрать Coming Soon |
+| **Benchmarks** | Planned (0/4) | **НЕ РЕАЛИЗОВАНО** | **БЛОКЕР — P0** |
+| **Examples** | Planned (0/5) | **НЕ РЕАЛИЗОВАНО** | **БЛОКЕР — P0** |
+| **Migration Guides** | Planned (0/4) | **НЕ РЕАЛИЗОВАНО** | **БЛОКЕР — P0** |
+| **Integrations** | "⏳ Coming soon" (17) | **17/17 реализовано** | Обновить README, убрать Coming Soon |
+| Performance claims | "5-10x faster than Zod" | **НЕ ДОКАЗАНО** | Benchmark suite — P0 |
+| Bundle size | "~4.2KB" | **НЕ ВЕРИФИЦИРОВАНО** | size-limit CI check — P0 |
+| Tree-shaking | "Full tree-shaking" | **НЕ ПРОВЕРЕНО** | Bundle analysis — P1 |
+| Visual Inspector | "⏳ Coming soon" | **НЕ РЕАЛИЗОВАНО** | Фаза 4.5 (P2) |
+| Performance Budgets | "⏳ Coming soon" | **НЕ РЕАЛИЗОВАНО** | Оценить необходимость |
+| Parallel Validation | "⏳ Coming soon" | **НЕ РЕАЛИЗОВАНО** | Оценить необходимость |
+
+### 9.2 КРИТИЧЕСКИЕ БЛОКЕРЫ ДЛЯ TOP-1 (обязательны до launch)
+
+#### 9.2.1 BENCHMARKS (АБСОЛЮТНЫЙ ПРИОРИТЕТ)
+
+**Проблема:** В README заявлены производительность 5-10x быстрее Zod и 50M+ ops/sec, но нет ни одного воспроизводимого бенчмарка.
+
+**Последствия:**
+- Нулевая credibility в сообществе
+- HackerNews разорвет на части за unsubstantiated claims
+- Конкуренты укажут на отсутствие доказательств
+- Невозможно сравнивать с Zod/Valibot/Yup
+
+**План исполнения (3 дня):**
+
+```
+Day 1: Benchmark infrastructure
+- [ ] Создать /benchmarks директорию
+- [ ] Настроить vitest bench с warmup и iterations
+- [ ] Подготовить идентичные test cases для всех библиотек:
+  * Simple string validation
+  * Complex nested object
+  * Large array (10K items)
+  * Union types (5+ branches)
+  * Transform chains
+  * Async refinements
+- [ ] Задокументировать hardware/environment
+
+Day 2: Реальное тестирование
+- [ ] Запустить benchmarks FIRM vs Zod vs Valibot vs Yup
+- [ ] Измерить compiled vs non-compiled mode
+- [ ] Измерить с кешированием и без
+- [ ] Сохранить raw data
+
+Day 3: Документация и честность
+- [ ] Если 50M ops/sec не подтвердились — скорректировать README
+- [ ] Создать docs/benchmarks/results.md с графиками
+- [ ] Опубликовать воспроизводимые скрипты
+- [ ] Добавить CI job для performance regression
+```
+
+**Критерий успеха:** Любой разработчик может запустить `npm run bench` и получить те же результаты.
+
+#### 9.2.2 MIGRATION GUIDES (80% пользователей приходят из Zod)
+
+**Проблема:** В README обещаны гайды миграции с Zod, Yup, Joi, TypeBox — их нет.
+
+**Последствия:**
+- Никто не будет мигрировать без четкого гайда
+- 80% потенциальных пользователей используют Zod — они главная аудитория
+- Конкуренция за Valibot/Yup пользователей менее критична (меньше market share)
+
+**План исполнения (2 дня):**
+
+```
+Migration from Zod (приоритет #1):
+- [ ] docs/guides/migration-from-zod.md
+- [ ] Side-by-side comparison всех API методов
+- [ ] Codemod script для автоматической миграции:
+  * import { z } from "zod" → import { s } from "firm-validator"
+  * z.string() → s.string()
+  * z.object({ ... }) → s.object({ ... })
+- [ ] Breaking changes list (если есть)
+- [ ] Performance comparison (после benchmarks готовы)
+
+Migration from Yup:
+- [ ] docs/guides/migration-from-yup.md
+- [ ] Mapping yup API → FIRM API
+- [ ] Common patterns (schema composition, context, etc.)
+
+Migration from Joi, TypeBox (lower priority):
+- [ ] Базовые гайды
+```
+
+**Критерий успеха:** Разработчик с Zod проектом может мигрировать на FIRM за <1 час.
+
+#### 9.2.3 WORKING EXAMPLES (proof that it works)
+
+**Проблема:** В README перечислены 5 example projects — их нет.
+
+**Последствия:**
+- Пользователи не видят реальных use cases
+- Не понимают как использовать интеграции
+- Снижается adoption rate
+
+**План исполнения (3 дня):**
+
+```
+Day 1: Express REST API example
+- [ ] examples/express-api/
+- [ ] Full CRUD API с валидацией body/query/params
+- [ ] Error handling middleware
+- [ ] README с инструкциями запуска
+
+Day 2: React form example
+- [ ] examples/react-form/
+- [ ] React Hook Form integration
+- [ ] Multi-step form с валидацией
+- [ ] Error display и UX
+
+Day 3: Next.js + tRPC example
+- [ ] examples/nextjs-trpc/
+- [ ] App Router + Server Actions
+- [ ] tRPC endpoints с FIRM валидацией
+- [ ] Type-safe full-stack
+```
+
+**Критерий успеха:** Каждый example можно `npm install && npm run dev` и он работает.
+
+### 9.3 ДОПОЛНИТЕЛЬНЫЕ ФИЧИ: Оценка необходимости
+
+#### 9.3.1 Visual Schema Inspector
+
+**Обещание в README:** "⏳ Coming soon"
+**Реальность:** Не реализовано
+
+**Оценка целесообразности:**
+- **Impact на adoption:** Средний (nice-to-have, но не blocker)
+- **Effort:** Высокий (требуется отдельный web UI)
+- **Конкурентное преимущество:** Низкое (есть альтернативы вроде json-schema-viewer)
+- **Рекомендация:** P2 (после launch, если будет demand)
+
+**Альтернатива:** Вместо полноценного UI сделать:
+- JSON Schema export (`schema.toJsonSchema()`)
+- Интеграция с существующими JSON Schema viewers
+
+#### 9.3.2 Performance Budgets
+
+**Обещание в README:** "⏳ Coming soon"
+**Реальность:** Не реализовано
+
+**Оценка целесообразности:**
+- **Impact на adoption:** Низкий (узкая use case)
+- **Effort:** Средний
+- **Конкурентное преимущество:** Низкое (ниша)
+- **Рекомендация:** P3 (не включать в v1.0)
+
+**Альтернатива:**
+- Документировать как измерять производительность валидации
+- Примеры с benchmark code для custom schemas
+
+#### 9.3.3 Parallel Validation
+
+**Обещание в README:** "⏳ Coming soon"
+**Реальность:** Не реализовано
+
+**Оценка целесообразности:**
+- **Impact на adoption:** Средний (для high-throughput use cases)
+- **Effort:** Высокий (Worker threads, sync challenges)
+- **Конкурентное преимущество:** Высокое (unique feature)
+- **Рекомендация:** P2 (для v1.1+, после benchmarks докажут что single-threaded достаточно быстр)
+
+**Вопросы для реализации:**
+- В браузере: Web Workers
+- В Node.js: Worker threads
+- Overhead communication может убить выигрыш для мелких схем
+
+### 9.4 ДОКУМЕНТАЦИЯ ДО УРОВНЯ VALIBOT
+
+**Текущий статус Valibot docs (лидер):**
+- Полный API Reference (каждый метод с примерами)
+- Interactive playground
+- Подробные guides (10+ гайдов)
+- Migration guides от всех конкурентов
+- FAQ section
+- Community examples
+- TypeScript tips
+- Performance guide
+
+**План для FIRM (4 дня работы):**
+
+```
+Day 1: API Reference
+- [ ] Создать docs/api/ структуру
+- [ ] Для каждого типа (string, number, object, etc.):
+  * Описание
+  * Type signature
+  * 3-5 примеров использования
+  * Edge cases
+  * TypeScript tips
+- [ ] JSDoc комментарии в исходном коде → auto-generated docs
+
+Day 2: Guides
+- [ ] error-handling.md (как обрабатывать ошибки)
+- [ ] transforms.md (transform, coerce, preprocess)
+- [ ] async-validation.md (refineAsync, parseAsync)
+- [ ] performance-optimization.md (compiler, caching)
+- [ ] security.md (prototype pollution, ReDoS, depth limits)
+- [ ] typescript-tips.md (InferInput, InferOutput, branded types)
+
+Day 3: Integration guides
+- [ ] Для каждой из 17 интеграций создать README:
+  * Installation
+  * Basic usage
+  * Advanced patterns
+  * Common pitfalls
+  * Full example
+- [ ] Приоритет: Express, Koa, Next.js, React Hook Form, tRPC
+
+Day 4: DX improvements
+- [ ] FAQ section (20+ вопросов)
+- [ ] Troubleshooting guide
+- [ ] Contributing guide
+- [ ] Changelog (структурированный)
+```
+
+### 9.5 ECOSYSTEM & TOOLING (для долгосрочного TOP-1)
+
+Конкуренты (особенно Zod) сильны не только библиотекой, но и экосистемой вокруг нее.
+
+**Критические инструменты для adoption:**
+
+#### 9.5.1 ESLint Plugin
+```
+Правила:
+- firm/no-unused-schemas (warn if schema defined but not used)
+- firm/prefer-strict (suggest .strict() for objects)
+- firm/require-parse (enforce safeParse over parse)
+- firm/no-any-schemas (prevent s.any() usage)
+```
+
+**Effort:** 2 дня
+**Impact:** Средний (полезно для enterprise adoption)
+**Приоритет:** P2 (v1.1+)
+
+#### 9.5.2 CLI Tool
+```
+Функции:
+- firm init (создать базовый проект)
+- firm generate (generate schema from JSON/TypeScript type)
+- firm validate <file> --schema <schema> (validate JSON file)
+- firm benchmark (run performance tests)
+```
+
+**Effort:** 3 дня
+**Impact:** Средний
+**Приоритет:** P2 (v1.1+)
+
+#### 9.5.3 VS Code Extension
+```
+Функции:
+- Autocomplete для schema methods
+- Inline error highlighting
+- Quick fixes (suggest .optional(), .nullable())
+- Schema preview (hover over schema → see inferred type)
+```
+
+**Effort:** 5 дней
+**Impact:** Высокий (лучший DX)
+**Приоритет:** P1 (сразу после launch)
+
+#### 9.5.4 Codemods
+```
+Миграционные скрипты:
+- zod-to-firm (автоматическая конвертация Zod → FIRM)
+- yup-to-firm
+- joi-to-firm
+```
+
+**Effort:** 2 дня (для Zod), 1 день для каждого другого
+**Impact:** Критический для adoption
+**Приоритет:** P0 (включить в migration guides)
+
+### 9.6 ПРИОРИТИЗАЦИЯ: Что делать ПЕРВЫМ
+
+**Абсолютные P0 (блокируют launch):**
+1. ✅ BENCHMARKS — 3 дня
+2. ✅ MIGRATION GUIDES (Zod, Yup) — 2 дня
+3. ✅ WORKING EXAMPLES (3 примера) — 3 дня
+4. ✅ Bundle size verification — 0.5 дня
+5. ✅ README rewrite (честный, без Coming Soon) — 1 день
+
+**Итого: 9.5 дней работы до launch-ready.**
+
+**P1 (для successful launch, в течение 2 недель после):**
+- API Reference docs — 4 дня
+- Security hardening — 3 дня
+- Edge-case тесты — 4 дня
+- VS Code extension (basic) — 5 дней
+- CI/CD для benchmarks — 1 день
+
+**P2 (для долгосрочного success, v1.1+):**
+- Visual Schema Inspector (if demand)
+- Parallel Validation (if benchmarks show need)
+- ESLint plugin
+- CLI tool
+- Дополнительные migration guides (Joi, TypeBox)
+
+**P3 (nice-to-have):**
+- Performance Budgets
+- LLM-based error suggestions
+- WASM acceleration (если benchmarks показали что нужно)
+
+### 9.7 КОНКУРЕНТНЫЙ АНАЛИЗ: Где FIRM может обогнать
+
+| Критерий | Zod | Valibot | FIRM | Стратегия FIRM |
+|----------|-----|---------|------|----------------|
+| **Performance** | ~10M ops/sec | ~8M ops/sec | 28-95M ops/sec (compiled) | ✅ **ЛИДЕР** — но нужны benchmarks! |
+| **Bundle size** | ~10KB | **2.8KB** 👑 | ~4.2KB | Не лидер, но приемлемо. Фокус на "features worth the bytes" |
+| **Benchmarks** | Есть | Есть | **НЕТ** ❌ | **БЛОКЕР** — сделать ПЕРВЫМ |
+| **Examples** | 10+ репозиториев | 5+ examples | **НЕТ** ❌ | **БЛОКЕР** — 3-5 examples |
+| **Migration guides** | N/A | От Zod | **НЕТ** ❌ | **БЛОКЕР** — Zod→FIRM обязателен |
+| **Ecosystem** | ESLint, tRPC, 100+ integrations | Growing | 17 integrations, no tooling | Сфокусироваться на 5 главных интеграциях |
+| **Unique features** | Нет | Нет | Compiler, Caching, Auto-fix, Streaming, AI errors | ✅ **ОГРОМНОЕ ПРЕИМУЩЕСТВО** |
+| **Documentation** | 9/10 | 10/10 👑 | 5/10 | Догнать Valibot уровень за 2 недели |
+| **Type inference** | Excellent | Excellent | Good | Улучшить InferInput/InferOutput edge cases |
+
+**Вывод:**
+- **Главное оружие:** Unique features (compiler, caching, streaming) — это то, чего нет ни у кого
+- **Главная слабость:** Отсутствие доказательств (benchmarks, examples, migration guides)
+- **Стратегия:** Не конкурировать по bundle size с Valibot (не выиграть). Конкурировать по производительности + features.
+
+**Positioning message:**
+> "Valibot wins on bundle size. Zod wins on ecosystem. FIRM wins on performance and intelligence."
+
+### 9.8 KPI ДЛЯ ДОСТИЖЕНИЯ TOP-1 (Extended)
+
+#### Технические KPI (v1.0.0):
+- [ ] **Benchmarks published:** 4+ scenarios, reproducible, honest results
+- [ ] **Bundle size verified:** ≤5KB gzip (core), documented tree-shaking
+- [ ] **Test coverage:** 95%+ branch coverage, 700+ tests
+- [ ] **Security:** Zero known vulnerabilities, security.md published
+- [ ] **Documentation completeness:** 100% API coverage, 8+ guides, 3+ examples
+- [ ] **Migration guides:** Zod + Yup (minimum)
+- [ ] **CI/CD:** Automated tests, benchmarks, type checks, publish pipeline
+
+#### Adoption KPI (3 months post-launch):
+- [ ] **npm downloads:** 1000+/week (реалистично для нового валидатора)
+- [ ] **GitHub stars:** 500+ (показатель interest)
+- [ ] **GitHub issues:** <5 open critical bugs
+- [ ] **Stack Overflow:** 10+ questions about firm-validator
+- [ ] **HackerNews:** Front page for 4+ hours (Show HN)
+- [ ] **Reddit mentions:** 3+ posts with positive reception
+- [ ] **Twitter reach:** 10K+ impressions на launch thread
+
+#### Ecosystem KPI (12 months):
+- [ ] **npm downloads:** 100K+/week (TOP-10 validator territory)
+- [ ] **GitHub stars:** 5000+ (entering mainstream)
+- [ ] **Contributors:** 20+ external contributors
+- [ ] **Integrations:** PR merged в @hookform/resolvers, tRPC consideration
+- [ ] **Production usage:** 5+ companies publicly using FIRM
+- [ ] **Media coverage:** 3+ blog posts/podcasts (not by maintainer)
+- [ ] **Community:** Discord/Slack with 200+ members OR active GitHub Discussions
+
+#### Developer Experience KPI:
+- [ ] **Time to first validation:** <5 minutes (install → first working schema)
+- [ ] **Migration time (from Zod):** <1 hour for typical project
+- [ ] **Documentation search:** Google "firm validator X" → relevant doc in top 3 results
+- [ ] **IDE support:** VS Code autocomplete works for all public APIs
+- [ ] **Error clarity:** Average developer understands validation error without docs
+
+### 9.9 TIMELINE ДО LAUNCH-READY (Aggressive)
+
+```
+Week 1: CRITICAL BLOCKERS
+Day 1-3: Benchmarks suite
+  - Infrastructure setup
+  - Run vs all competitors
+  - Document methodology
+  - Publish results
+
+Day 4-5: Migration guides
+  - Zod migration guide (priority)
+  - Yup migration guide
+  - Codemod scripts
+
+Day 6-7: Working examples
+  - Express REST API
+  - React Hook Form
+  - Next.js + tRPC
+
+Week 2: DOCUMENTATION & POLISH
+Day 8-11: API Documentation
+  - Full API reference (all types)
+  - 8+ guides (error handling, performance, security, etc.)
+  - Integration READMEs (17 packages)
+
+Day 12-13: README rewrite
+  - Remove all "Coming Soon"
+  - Honest performance claims
+  - Real benchmark results
+  - Migration instructions
+
+Day 14: Bundle size & security
+  - size-limit CI setup
+  - Security audit
+  - Dependency check
+
+Week 3: HARDENING
+Day 15-18: Testing
+  - Edge-case tests (100+)
+  - Type-level tests (30+)
+  - Security tests
+  - Performance regression tests
+
+Day 19-20: CI/CD
+  - GitHub Actions complete setup
+  - Automated benchmarks
+  - Automated publish pipeline
+
+Day 21: Pre-launch review
+  - Checklist verification
+  - Dry-run npm publish
+  - Final README polish
+
+Week 4: LAUNCH & MONITOR
+Day 22: LAUNCH
+  - npm publish v1.0.0
+  - HackerNews post
+  - Reddit posts
+  - Twitter thread
+  - Dev.to article
+
+Day 23-28: Post-launch support
+  - Monitor issues (respond <24h)
+  - Fix critical bugs
+  - Gather feedback
+  - Plan v1.1
+```
+
+**Total: 4 недели до production launch.**
+
+### 9.10 РЕКОМЕНДАЦИИ
+
+#### 1. ЧЕСТНОСТЬ > HYPE
+- **НЕ** запускать пока benchmarks не готовы
+- **НЕ** claims без proof
+- **ЛУЧШЕ** скромные, но правдивые claims, чем опровергнутые громкие
+
+Пример хорошего messaging:
+> "FIRM is 5x faster than Zod on compiled schemas (see benchmarks). For non-compiled schemas, performance is comparable. Bundle size is 4.2KB — larger than Valibot (2.8KB) but smaller than Zod (10KB). We believe the unique features (compiler, caching, streaming) are worth the extra bytes."
+
+#### 2. ФОКУС НА УНИКАЛЬНОСТИ
+Не пытаться победить Valibot по bundle size — не выиграть.
+Не пытаться победить Zod по ecosystem — не в первой версии.
+
+**ФОКУС:** Compiled validation, Smart caching, Auto-fix, Streaming — это то, чего нет ни у кого.
+
+#### 3. МИГРАЦИЯ С ZOD = #1 ПРИОРИТЕТ
+80% потенциальных пользователей используют Zod. Без migration guide они не придут.
+
+#### 4. LAUNCH TIMING
+**НЕ** launch пока:
+- ❌ Benchmarks не готовы и не верифицированы
+- ❌ Migration guide (Zod) не написан
+- ❌ 3+ working examples не созданы
+
+**МОЖНО** launch когда:
+- ✅ Все блокеры (п. 9.2) закрыты
+- ✅ README честный и точный
+- ✅ CI/CD настроен
+- ✅ Security audit пройден
+
+#### 5. POST-LAUNCH PRIORITIES
+После launch самое важное:
+1. **Быстрый response на issues** (<24h)
+2. **Быстрый фикс критических багов** (<48h)
+3. **Собирать feedback** для v1.1
+4. **Продолжать писать контент** (статьи, туториалы)
+
+---
+
+## 10. ИТОГОВАЯ ОЦЕНКА: FIRM vs TOP-1 GOAL
+
+**Текущая позиция:** ~80% готовности к TOP-1 (не 20%, как старый аудит)
+
+**Что уже есть (сильные стороны):**
+- ✅ Уникальные features (compiler, caching, auto-fix, streaming)
+- ✅ Производительность (если benchmarks подтвердят)
+- ✅ 17 интеграций (больше чем у Valibot)
+- ✅ Полная type safety
+- ✅ 498 тестов
+
+**Что блокирует TOP-1:**
+- ❌ Отсутствие benchmarks (нулевая credibility)
+- ❌ Отсутствие migration guides (блокирует Zod пользователей)
+- ❌ Отсутствие working examples (блокирует adoption)
+- ❌ Слабая документация (vs Valibot уровень)
+
+**Реалистичная оценка времени до TOP-1:**
+- **Minimum viable launch:** 2 недели (только блокеры)
+- **Confident launch:** 4 недели (блокеры + документация + hardening)
+- **TOP-1 capable:** 3 месяца (launch + ecosystem + adoption + feedback loop)
+
+**Рекомендация:**
+Не торопиться с launch. Лучше потратить 4 недели и запустить качественный продукт, чем запустить сейчас и получить negative reception за unsubstantiated claims.
+
+**Success = Execution этого плана.**
+
+---
+
+**Документ обновлен:** 3 февраля 2026
+**Следующий review:** После выполнения Секции 9.2 (Critical Blockers)

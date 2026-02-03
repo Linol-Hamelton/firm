@@ -7,6 +7,8 @@
  * Target: Zero-config integration with @nestjs/common.
  */
 
+import type { Schema, Infer } from '../../common/types/schema.js';
+
 // ============================================================================
 // NESTJS INTEGRATION
 // ============================================================================
@@ -67,7 +69,7 @@ function getInternalServerErrorException(): new (response: unknown) => Error {
  * ```
  */
 export class FirmValidationPipe<T> {
-  constructor(private readonly schema: any) {}
+  constructor(private readonly schema: Schema<T>) {}
 
   /**
    * Transform and validate the value.
@@ -124,7 +126,7 @@ export class FirmValidationPipe<T> {
  * async createUser(@FirmBody(userSchema) body: User) { ... }
  * ```
  */
-export function FirmBody<T>(schema: any): ParameterDecorator {
+export function FirmBody<T>(schema: Schema<T>): ParameterDecorator {
   return (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) => {
     if (!propertyKey) return;
     
@@ -143,7 +145,7 @@ export function FirmBody<T>(schema: any): ParameterDecorator {
  * async getUsers(@FirmQuery(querySchema) query: Query) { ... }
  * ```
  */
-export function FirmQuery<T>(schema: any): ParameterDecorator {
+export function FirmQuery<T>(schema: Schema<T>): ParameterDecorator {
   return (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) => {
     if (!propertyKey) return;
     
@@ -162,7 +164,7 @@ export function FirmQuery<T>(schema: any): ParameterDecorator {
  * async getUser(@FirmParam(paramSchema) params: Params) { ... }
  * ```
  */
-export function FirmParam<T>(schema: any): ParameterDecorator {
+export function FirmParam<T>(schema: Schema<T>): ParameterDecorator {
   return (target: any, propertyKey: string | symbol | undefined, parameterIndex: number) => {
     if (!propertyKey) return;
     
@@ -231,7 +233,7 @@ export class FirmModule {
  * async createUser(@Body() body: User) { ... }
  * ```
  */
-export function FirmGuard<T>(schema: any) {
+export function FirmGuard<T>(schema: Schema<T>) {
   return class FirmGuardImpl {
     canActivate(context: any): boolean | Promise<boolean> {
       const request = context.switchToHttp().getRequest();
@@ -267,7 +269,7 @@ export function FirmGuard<T>(schema: any) {
  * async getUsers(): Promise<User[]> { ... }
  * ```
  */
-export function FirmResponseInterceptor<T>(schema: any) {
+export function FirmResponseInterceptor<T>(schema: Schema<T>) {
   return class FirmResponseInterceptorImpl {
     intercept(context: any, next: any) {
       const { map } = require('rxjs/operators');
@@ -294,7 +296,7 @@ export function FirmResponseInterceptor<T>(schema: any) {
  * Usage:
  * ```ts
  * const UserDto = createDto(userSchema, 'UserDto');
- * 
+ *
  * @Controller()
  * class UserController {
  *   @Post()
@@ -302,7 +304,7 @@ export function FirmResponseInterceptor<T>(schema: any) {
  * }
  * ```
  */
-export function createDto<T>(schema: any, _className: string): any {
+export function createDto<T>(schema: Schema<T>, className?: string): any {
   return class {
     constructor(data: T) {
       Object.assign(this, data);

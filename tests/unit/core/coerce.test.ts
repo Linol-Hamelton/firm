@@ -4,7 +4,7 @@
  * Tests for type coercion functionality.
  */
 
-import { s } from '../../../src/app/firm';
+import { s } from '../../../src/index';
 
 describe('Coerce', () => {
   describe('s.coerce.string()', () => {

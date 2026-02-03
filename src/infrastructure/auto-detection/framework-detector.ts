@@ -276,7 +276,8 @@ class NestDetector implements DetectionStrategy {
   checkDependencies(packageJson: Record<string, unknown>): boolean {
     const deps = packageJson['dependencies'] as Record<string, unknown> || {};
     const devDeps = packageJson['devDependencies'] as Record<string, unknown> || {};
-    return '@nestjs/core' in deps || '@nestjs/common' in deps;
+    return '@nestjs/core' in deps || '@nestjs/common' in deps ||
+           '@nestjs/core' in devDeps || '@nestjs/common' in devDeps;
   }
 
   checkFileStructure(): boolean {
@@ -315,7 +316,8 @@ class ReactDetector implements DetectionStrategy {
   checkDependencies(packageJson: Record<string, unknown>): boolean {
     const deps = packageJson['dependencies'] as Record<string, unknown> || {};
     const devDeps = packageJson['devDependencies'] as Record<string, unknown> || {};
-    return 'react' in deps || 'react-dom' in deps;
+    return 'react' in deps || 'react-dom' in deps ||
+           'react' in devDeps || 'react-dom' in devDeps;
   }
 
   checkFileStructure(): boolean {

@@ -34,9 +34,14 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // Support .js imports in TypeScript files
+      // Support .js imports in TypeScript files for ESM
       '^(\\.{1,2}/.*)\\.js$': '$1',
+      // Alias for src directory
+      '^@/(.*)$': resolve(__dirname, 'src/$1'),
+      // Redirect src/index.js to dist/index.js for tests
+      '^(\\.{1,2}/.*)src/index\\.js$': '$1dist/index.js',
     },
     extensions: ['.ts', '.js', '.json'],
+    conditions: ['import', 'node'],
   },
 });

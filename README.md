@@ -1,27 +1,27 @@
 # Firm Validator
 
-⚡ **The fastest, simplest TypeScript schema validator**
+⚡ **TypeScript-first schema validator with compiler-first architecture**
 
 [![npm version](https://img.shields.io/npm/v/firm-validator.svg)](https://www.npmjs.com/package/firm-validator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 
-50M ops/sec • <5KB • Zero dependencies • TypeScript-first • Production ready
+11.5KB ESM • Zero dependencies • TypeScript-first • Production Ready (v1.0.0)
 
 ---
 
 ## Why Firm?
 
-**Firm** is a next-generation TypeScript schema validator that combines blazing-fast performance, tiny bundle size, and an extensive ecosystem of framework integrations.
+**Firm** is a TypeScript schema validator built with a compiler-first architecture. It combines high performance, comprehensive type inference, and unique features like auto-fix mode, smart caching, and streaming validation.
 
 ### Key Features
 
-✅ **Lightning Fast** - 50M operations per second (5x faster than Zod)
-✅ **Tiny Bundle** - <5KB minified (50% smaller than Zod)
-✅ **Zero Dependencies** - No bloat, just validation
-✅ **TypeScript First** - Perfect type inference out of the box
-✅ **Simple API** - Learn in 5 minutes, master in 30
-✅ **Production Ready** - 283 tests, 89% coverage, strict type safety
+✅ **Compiler-First Architecture** - Specialized compilers for each schema type (2.8-3.9x speedup)
+✅ **Smart Caching** - LRU and TTL-based validation result caching
+✅ **Auto-Fix Mode** - Automatic error correction and data transformation (in development)
+✅ **Streaming Validation** - NDJSON and array streaming support (in development)
+✅ **AI Error Messages** - Intelligent, context-aware error suggestions (in development)
+✅ **Production Ready** - Core validation complete, security hardening implemented
 
 ---
 
@@ -75,16 +75,20 @@ if (result.ok) {
 
 ## Performance Comparison
 
-| Feature | Firm | Zod | Yup | Joi |
-|---------|------|-----|-----|-----|
-| **Performance** | 50M ops/sec ⚡ | 10M ops/sec | 8M ops/sec | 5M ops/sec |
-| **Bundle Size** | 4.2KB | 8KB | 12KB | 45KB |
-| **Zero Dependencies** | ✅ | ✅ | ✅ | ❌ |
-| **Type Inference** | ✅✅ | ✅✅ | ✅ | ⚠️ |
-| **Production Ready** | ✅ | ✅ | ✅ | ✅ |
-| **Ecosystem** | Growing | Mature | Mature | Mature |
+Based on actual benchmarks (Node.js v22.21.0, 100k iterations):
 
-> Benchmarks are reproducible and verified. See [benchmarks documentation](./docs/benchmarks.md) for methodology.
+| Feature | Firm | Zod 3.22+ | Valibot 0.30+ | Yup 1.3+ |
+|---------|------|-----------|---------------|----------|
+| **String Validation** | 9.6-61M ops/sec ⚡ | ~10M ops/sec | ~8M ops/sec | ~1.7M ops/sec |
+| **Simple Objects (4 fields)** | 0.8-3.1M ops/sec | ~800K ops/sec | ~600K ops/sec | ~300K ops/sec |
+| **Complex Objects** | 130-487K ops/sec | ~100K ops/sec | ~80K ops/sec | ~50K ops/sec |
+| **Bundle Size** | 11.5KB ESM / 15.6KB CJS | ~12KB | ~3KB | ~25KB |
+| **Zero Dependencies** | ✅ | ✅ | ✅ | ❌ |
+| **Type Inference** | ✅ Perfect | ✅ Perfect | ✅ Perfect | ⚠️ Limited |
+| **Security Hardening** | ✅ Prototype pollution, ReDoS protection | ⚠️ Basic | ⚠️ Basic | ⚠️ Basic |
+| **Compiler Speedup** | 2.8-3.9x faster when compiled | ❌ | ❌ | ❌ |
+
+> Benchmarks based on actual measurements. See [benchmarks documentation](./docs/benchmarks/) for methodology.
 
 ---
 
@@ -398,50 +402,54 @@ export default async function handler(
 
 ---
 
-## Roadmap
+## What's Included
 
-### Current Status (v1.0.0-rc.1)
+### Core Features (Implemented)
 
-- ✅ Core validators (primitives + composites)
-- ✅ Type inference
-- ✅ Error handling
-- ✅ 283 tests, 89% coverage
-- ✅ Zero dependencies
-- ✅ Production ready
+- ✅ **Complete Type System** - Primitives (string, number, boolean), composites (object, array, record, union)
+- ✅ **Data Transformation** - `.transform()`, `.preprocess()`, type coercion
+- ✅ **Advanced Types** - Tuples, lazy schemas, discriminated unions (in development)
+- ✅ **Smart Caching** - LRU, TTL-based result caching (basic implementation)
+- ✅ **Security Hardening** - Prototype pollution protection, ReDoS-safe regex validation
 
-### Coming Soon
+### Features in Development
 
-- 🚧 Async validation with `.refine()` and `.superRefine()`
-- 🚧 Data transformations with `.transform()` and `.coerce()`
-- 🚧 Framework integrations (Express, React, tRPC, Prisma, etc.)
-- 🚧 JSON Schema export
-- 🚧 Migration tools from Zod/Yup/Joi
-- 🚧 Visual schema inspector
-- 🚧 Performance profiler
+- 🔄 **Async Validation** - `.refineAsync()` (planned)
+- 🔄 **Auto-Fix Mode** - Automatic error correction (planned)
+- 🔄 **Streaming Validation** - NDJSON, array streaming (planned)
+- 🔄 **AI Error Messages** - Context-aware error suggestions (planned)
 
-[See full roadmap →](./FIRM_MASTER_PLAN.md)
+### Framework Integrations (Architecture Ready)
+
+- ⚙️ **Backend**: Express, Fastify, Hono, Next.js, NestJS, Koa (architecture defined)
+- ⚙️ **Frontend**: React Hook Form, Vue, Svelte, Solid.js (architecture defined)
+- ⚙️ **API/ORM**: tRPC, GraphQL, Prisma, TypeORM, Drizzle (architecture defined)
+
+[See roadmap for development timeline →](./FIRM_MASTER_ROADMAP.md)
 
 ---
 
 ## Why Choose Firm?
 
-### 1. **Blazing Fast Performance**
-50 million operations per second. That's 5x faster than Zod, 6x faster than Yup, and 10x faster than Joi.
+### 1. **Compiler-First Architecture**
+Unlike other validators, Firm uses specialized compilers for each schema type, delivering 2.8-3.9x speedup for compiled schemas compared to runtime validation.
 
-### 2. **Tiny Bundle Size**
-4.2KB minified. 50% smaller than Zod. Every kilobyte matters for user experience.
+### 2. **Honest Development Approach**
+- **Transparent Roadmap**: Clear development timeline in [FIRM_MASTER_ROADMAP.md](./FIRM_MASTER_ROADMAP.md)
+- **Measured Performance**: Real benchmarks, not theoretical claims
+- **Incremental Delivery**: Core validation complete, advanced features in development
 
-### 3. **Zero Dependencies**
-No bloat. No supply chain risks. Just pure validation logic.
+### 3. **Security First**
+Built-in protection against prototype pollution and ReDoS attacks through safe regex validation and input sanitization.
 
-### 4. **Perfect TypeScript Integration**
-Type inference that just works. IntelliSense that helps you code faster.
+### 4. **Production Ready Core**
+Core validation engine is complete and stable with comprehensive type inference and error handling.
 
-### 5. **Production Ready**
-Thoroughly tested with 283 tests and 89% code coverage. Used in production by real projects.
+### 5. **Extensible Architecture**
+Clean hexagonal architecture (Ports & Adapters) makes it easy to add new integrations and features.
 
-### 6. **Growing Ecosystem**
-42+ framework integrations planned. Works with Express, Fastify, React, Vue, tRPC, Prisma, and more.
+### 6. **Realistic Performance**
+11.5KB ESM bundle with zero dependencies. Performance optimized for common validation scenarios.
 
 ---
 
@@ -530,16 +538,23 @@ Inspired by the excellent work of:
 
 ## Status
 
-🚀 **Production Ready** (v1.0.0-rc.1)
+🚧 **Core Validation Complete** (v1.0.0)
 
-**Current Stats:**
-- 283 tests passing
-- 89% code coverage
-- 50M+ ops/sec performance
-- <5KB bundle size
+**Current State:**
+- ✅ Core validation engine stable
+- ✅ Type inference working
+- ✅ Security hardening implemented
+- ✅ Compiler architecture implemented
+- 🔄 Advanced features in development
+- 🔄 Framework integrations in progress
+
+**Real Metrics:**
+- 2.8-3.9x speedup with compiler
+- 11.5KB ESM bundle size
 - Zero runtime dependencies
+- Hexagonal architecture ready for extensions
 
-**Last updated:** January 2026
+**Last updated:** February 2026
 
 ---
 

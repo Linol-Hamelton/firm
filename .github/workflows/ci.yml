@@ -73,23 +73,41 @@ jobs:
     name: Benchmark
     runs-on: ubuntu-latest
     needs: build
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-    
+
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Run benchmarks
       run: npm run bench
       continue-on-error: true  # Benchmarks may fail, but we still want to see results
-    
+
+    - name: Performance regression check
+      run: |
+        # Run benchmarks and capture results
+        npm run bench > bench_results.txt 2>&1 || true
+
+        # Extract key metrics (this is a simple example - adjust based on your bench output)
+        if grep -q "ERROR\|FAIL" bench_results.txt; then
+          echo "Performance regression detected!"
+          cat bench_results.txt
+          exit 1
+        fi
+
+        # Check for significant slowdowns (basic check)
+        if grep -q "slow" bench_results.txt; then
+          echo "Warning: Potential performance issues detected"
+          cat bench_results.txt
+        fi
+
     - name: Check circular dependencies
       run: npm run circular

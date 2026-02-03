@@ -2,8 +2,7 @@
  * tRPC Integration Tests
  */
 
-import { describe, it, expect } from 'vitest';
-import { s } from '../../../src/index';
+import { s } from '../../../src/index.ts';
 import { firmInput, firmOutput } from '../../../src/integrations/trpc/index.js';
 import { ValidationError } from '../../../src/common/errors/validation-error.js';
 

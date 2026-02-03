@@ -2,8 +2,7 @@
  * React Hook Form Integration Tests
  */
 
-import { describe, it, expect } from 'vitest';
-import { s } from '../../../src/index';
+import { s } from '../../../src/index.ts';
 import { firmResolver, getErrorMessage, hasError } from '../../../src/integrations/react-hook-form/index.js';
 
 describe('React Hook Form Integration', () => {

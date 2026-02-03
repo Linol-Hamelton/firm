@@ -64,6 +64,7 @@ export const DEFAULT_MESSAGES: Record<ErrorCode, MessageTemplate> = {
   STRING_STARTS_WITH: ({ expected }) => `String must start with "${expected}"`,
   STRING_ENDS_WITH: ({ expected }) => `String must end with "${expected}"`,
   STRING_INCLUDES: ({ expected }) => `String must include "${expected}"`,
+  STRING_PATTERN_SECURITY_VIOLATION: 'Pattern validation rejected for security reasons',
 
   // Number constraints
   NUMBER_TOO_SMALL: ({ min }) => `Number must be at least ${min}`,
@@ -88,6 +89,7 @@ export const DEFAULT_MESSAGES: Record<ErrorCode, MessageTemplate> = {
   // Object constraints
   OBJECT_UNKNOWN_KEY: ({ received }) => `Unrecognized key: ${received}`,
   OBJECT_MISSING_KEY: ({ expected }) => `Missing required key: ${expected}`,
+  OBJECT_SECURITY_VIOLATION: 'Object validation rejected for security reasons',
 
   // Union/Intersection
   UNION_NO_MATCH: 'Value does not match any union member',

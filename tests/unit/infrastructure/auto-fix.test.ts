@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { s } from '../../../src/index';
+import { s } from '../../../src/index.ts';
 import {
   AutoFixer,
   withAutoFix,

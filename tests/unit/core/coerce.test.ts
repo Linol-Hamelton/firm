@@ -4,7 +4,6 @@
  * Tests for type coercion functionality.
  */
 
-import { describe, it, expect } from 'vitest';
 import { s } from '../../../src/app/firm.js';
 
 describe('Coerce', () => {

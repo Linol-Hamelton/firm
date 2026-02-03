@@ -1,0 +1,32 @@
+[
+  {
+    "name": "FIRM Core (ESM)",
+    "path": "dist/index.js",
+    "limit": "11 KB",
+    "gzip": true
+  },
+  {
+    "name": "FIRM Core (CJS)",
+    "path": "dist/index.cjs",
+    "limit": "12 KB",
+    "gzip": true
+  },
+  {
+    "name": "FIRM Primitives Only",
+    "path": "dist/primitives.js",
+    "limit": "5 KB",
+    "gzip": true
+  },
+  {
+    "name": "FIRM Composites Only",
+    "path": "dist/composites.js",
+    "limit": "6 KB",
+    "gzip": true
+  },
+  {
+    "name": "FIRM Compiler Only",
+    "path": "dist/compiler.js",
+    "limit": "3 KB",
+    "gzip": true
+  }
+]

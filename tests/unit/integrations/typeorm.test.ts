@@ -2,8 +2,7 @@
  * TypeORM Integration Tests
  */
 
-import { describe, it, expect } from 'vitest';
-import { s } from '../../../src/index';
+import { s } from '../../../src/index.ts';
 import {
   ValidatedEntity,
   createValidationSubscriber,

@@ -2,8 +2,7 @@
  * Schema Compiler Tests
  */
 
-import { describe, it, expect } from 'vitest';
-import { s, compile } from '../../../src/index';
+import { s, compile } from '../../../src/index.ts';
 
 describe('SchemaCompiler', () => {
   describe('compile() function', () => {

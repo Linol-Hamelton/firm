@@ -36,6 +36,7 @@ export const RU_MESSAGES: Record<ErrorCode, MessageTemplate> = {
   STRING_STARTS_WITH: ({ expected }) => `Строка должна начинаться с "${expected}"`,
   STRING_ENDS_WITH: ({ expected }) => `Строка должна заканчиваться на "${expected}"`,
   STRING_INCLUDES: ({ expected }) => `Строка должна содержать "${expected}"`,
+  STRING_PATTERN_SECURITY_VIOLATION: 'Проверка шаблона отклонена по соображениям безопасности',
 
   // Number constraints
   NUMBER_TOO_SMALL: ({ min }) => `Число должно быть не менее ${min}`,
@@ -60,6 +61,7 @@ export const RU_MESSAGES: Record<ErrorCode, MessageTemplate> = {
   // Object constraints
   OBJECT_UNKNOWN_KEY: ({ received }) => `Неизвестный ключ: ${received}`,
   OBJECT_MISSING_KEY: ({ expected }) => `Отсутствует обязательный ключ: ${expected}`,
+  OBJECT_SECURITY_VIOLATION: 'Проверка объекта отклонена по соображениям безопасности',
 
   // Union/Intersection
   UNION_NO_MATCH: 'Значение не соответствует ни одному из вариантов объединения',

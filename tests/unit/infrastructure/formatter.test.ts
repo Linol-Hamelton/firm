@@ -2,7 +2,6 @@
  * Error Formatter Tests
  */
 
-import { describe, it, expect } from 'vitest';
 import {
   DefaultErrorFormatter,
   JsonErrorFormatter,

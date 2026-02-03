@@ -1,8 +1,7 @@
-import { describe, it, expect } from 'vitest';
 // @ts-ignore - TypeScript doesn't see compiled files
-import { s } from '../../../src/index';
+import { s } from '../../../../src/index';
 // @ts-ignore - TypeScript doesn't see compiled files
-import { validateStream, validateArrayStream, isStream } from '../../../src/infrastructure/streaming/streaming-validator.js';
+import { validateStream, validateArrayStream, isStream } from '../../../../src/infrastructure/streaming/streaming-validator.js';
 
 describe('Streaming Validation', () => {
   const userSchema = s.object({

@@ -4,7 +4,6 @@
  * Tests real-world usage scenarios.
  */
 
-import { describe, it, expect } from 'vitest';
 import { s, compile } from '../../src/index.js';
 import type { Infer } from '../../src/index.js';
 

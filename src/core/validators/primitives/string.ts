@@ -15,6 +15,7 @@ import { BaseSchema } from '../../schema/base-schema.js';
 import type { StringSchemaConfig } from '../../../common/types/schema.js';
 import type { ValidationResult } from '../../../common/types/result.js';
 import { ok, err, createError, ErrorCode } from '../../../common/types/result.js';
+import { validateRegexSecurity } from '../../../common/utils/regex-utils.js';
 import {
   EMAIL_SIMPLE,
   URL_SIMPLE,
@@ -91,16 +92,29 @@ export class StringValidator extends BaseSchema<string, StringSchemaConfig> {
       );
     }
 
-    // Pattern validation
-    if (this.config.pattern && !this.config.pattern.test(result)) {
-      return err(
-        createError(
-          ErrorCode.STRING_PATTERN_MISMATCH,
-          this.config.errorMessage ?? 'String does not match pattern',
-          path,
-          { pattern: this.config.pattern.source }
-        )
-      );
+    // Pattern validation with ReDoS protection
+    if (this.config.pattern) {
+      const patternValidation = validateRegexSecurity(this.config.pattern, result);
+      if (!patternValidation.valid) {
+        return err(
+          createError(
+            ErrorCode.STRING_PATTERN_SECURITY_VIOLATION,
+            patternValidation.error ?? 'Pattern validation security violation',
+            path,
+            { pattern: this.config.pattern.source }
+          )
+        );
+      }
+      if (!patternValidation.result) {
+        return err(
+          createError(
+            ErrorCode.STRING_PATTERN_MISMATCH,
+            this.config.errorMessage ?? 'String does not match pattern',
+            path,
+            { pattern: this.config.pattern.source }
+          )
+        );
+      }
     }
 
     return ok(result);
@@ -118,8 +132,11 @@ export class StringValidator extends BaseSchema<string, StringSchemaConfig> {
     if (this.config.maxLength !== undefined && result.length > this.config.maxLength) {
       return false;
     }
-    if (this.config.pattern && !this.config.pattern.test(result)) {
-      return false;
+    if (this.config.pattern) {
+      const patternValidation = validateRegexSecurity(this.config.pattern, result);
+      if (!patternValidation.valid || !patternValidation.result) {
+        return false;
+      }
     }
 
     return true;

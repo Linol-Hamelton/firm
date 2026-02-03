@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { s } from '../../../src/index';
+import { s } from '../../../src/index.ts';
 import { validate, validateBody, validateParams, validateQuery } from '../../../src/integrations/express/index.js';
 
 describe('Express Integration', () => {

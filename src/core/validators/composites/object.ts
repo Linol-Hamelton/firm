@@ -14,6 +14,7 @@ import { BaseSchema } from '../../schema/base-schema.js';
 import type { Schema, ObjectSchemaConfig } from '../../../common/types/schema.js';
 import type { ValidationResult, ValidationError } from '../../../common/types/result.js';
 import { ok, err, errs, createError, ErrorCode } from '../../../common/types/result.js';
+import { getOwnKeys, validateObjectSecurity, DEFAULT_SECURITY_CONFIG } from '../../../common/utils/object-utils.js';
 
 // ============================================================================
 // TYPE HELPERS
@@ -72,6 +73,25 @@ export class ObjectValidator<T extends ObjectShape> extends BaseSchema<
     }
 
     const input = value as Record<string, unknown>;
+
+    // Security check: validate object depth and structure
+    const securityCheck = validateObjectSecurity(input, {
+      maxDepth: this.config.maxDepth ?? DEFAULT_SECURITY_CONFIG.maxDepth,
+      protectPrototype: true,
+      validateDepth: true
+    });
+
+    if (!securityCheck.valid) {
+      return err(
+        createError(
+          ErrorCode.OBJECT_SECURITY_VIOLATION,
+          securityCheck.error ?? 'Object security violation',
+          path,
+          { received: 'unsafe_object' }
+        )
+      );
+    }
+
     const result: Record<string, unknown> = {};
     const errors: ValidationError[] = [];
 
@@ -103,7 +123,7 @@ export class ObjectValidator<T extends ObjectShape> extends BaseSchema<
     if (this.config.unknownKeys !== 'strip') {
       const knownKeys = new Set(Object.keys(this.config.shape));
 
-      for (const key of Object.keys(input)) {
+      for (const key of getOwnKeys(input)) {
         if (!knownKeys.has(key)) {
           if (this.config.unknownKeys === 'strict') {
             errors.push(
@@ -144,7 +164,7 @@ export class ObjectValidator<T extends ObjectShape> extends BaseSchema<
 
     if (this.config.unknownKeys === 'strict') {
       const knownKeys = new Set(Object.keys(this.config.shape));
-      for (const key of Object.keys(input)) {
+      for (const key of getOwnKeys(input)) {
         if (!knownKeys.has(key)) return false;
       }
     }

@@ -316,6 +316,8 @@ export interface ArraySchemaConfig extends SchemaConfig {
 export interface ObjectSchemaConfig extends SchemaConfig {
   /** How to handle unknown keys: strip, passthrough, or strict */
   readonly unknownKeys?: 'strip' | 'passthrough' | 'strict';
+  /** Maximum depth for object validation to prevent stack overflow attacks */
+  readonly maxDepth?: number;
 }
 
 // ============================================================================

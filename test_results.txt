@@ -1,0 +1,32 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/firm[39m
+
+ [32m✓[39m tests/unit/core/simple.test.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/infrastructure/logger.test.ts [2m ([22m[2m28 tests[22m[2m)[22m[90m 38[2mms[22m[39m
+ [32m✓[39m tests/unit/infrastructure/auto-detection.test.ts [2m ([22m[2m14 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+ [32m✓[39m tests/unit/infrastructure/formatter.test.ts [2m ([22m[2m21 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/infrastructure/cache.test.ts [2m ([22m[2m30 tests[22m[2m)[22m[90m 243[2mms[22m[39m
+ [32m✓[39m tests/unit/core/object.test.ts [2m ([22m[2m11 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/core/coerce.test.ts [2m ([22m[2m23 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/core/string.test.ts [2m ([22m[2m18 tests[22m[2m)[22m[90m 20[2mms[22m[39m
+ [32m✓[39m tests/unit/core/union.test.ts [2m ([22m[2m17 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+ [32m✓[39m tests/unit/core/boolean.test.ts [2m ([22m[2m16 tests[22m[2m)[22m[90m 20[2mms[22m[39m
+ [32m✓[39m tests/unit/core/number.test.ts [2m ([22m[2m27 tests[22m[2m)[22m[90m 24[2mms[22m[39m
+ [32m✓[39m tests/unit/core/record.test.ts [2m ([22m[2m25 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/koa.test.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 26[2mms[22m[39m
+ [32m✓[39m tests/integration/e2e.test.ts [2m ([22m[2m16 tests[22m[2m)[22m[90m 24[2mms[22m[39m
+ [32m✓[39m tests/unit/core/special.test.ts [2m ([22m[2m30 tests[22m[2m)[22m[90m 26[2mms[22m[39m
+ [32m✓[39m tests/unit/core/array.test.ts [2m ([22m[2m31 tests[22m[2m)[22m[90m 34[2mms[22m[39m
+ [32m✓[39m tests/unit/core/compiler.test.ts [2m ([22m[2m35 tests[22m[2m)[22m[90m 31[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/prisma.test.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/core/async.test.ts [2m ([22m[2m25 tests[22m[2m)[22m[90m 104[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/nestjs.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/react-hook-form.test.ts [2m ([22m[2m12 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/express.test.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 24[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/typeorm.test.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/infrastructure/streaming/streaming.test.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 20[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/trpc.test.ts [2m ([22m[2m12 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/openapi.test.ts [2m ([22m[2m23 tests[22m[2m)[22m[90m 26[2mms[22m[39m
+ [32m✓[39m tests/unit/core/property-based.test.ts [2m ([22m[2m22 tests[22m[2m)[22m[90m 270[2mms[22m[39m
+ [32m✓[39m tests/unit/infrastructure/auto-fix.test.ts [2m ([22m[2m20 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+ [32m✓[39m tests/unit/infrastructure/smart-caching.test.ts [2m ([22m[2m14 tests[22m[2m)[22m[90m 199[2mms[22m[39m

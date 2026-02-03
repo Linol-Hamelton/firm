@@ -131,7 +131,7 @@ export function addValidationHooks(
         ? (schema as any).partial()
         : schema;
 
-      validateInstance(instance, { ...hookOpts, schema: updateSchema });
+      validateInstance(instance, { ...hookOpts, _schema: updateSchema });
     });
   }
 
@@ -145,7 +145,7 @@ export function addValidationHooks(
           : schema
       );
 
-      validateInstance(instance, { ...hookOpts, schema: validationSchema });
+      validateInstance(instance, { ...hookOpts, _schema: validationSchema });
     });
   }
 
@@ -317,7 +317,7 @@ function validateData(
  * await User.create(validated);
  * ```
  */
-export function validateCreate<T>(data: unknown, schema: Schema<T>): T {
+export function validateCreate<T>(data: unknown, _schema: Schema<T>): T {
   const result = schema.validate(data);
 
   if (!result.ok) {
@@ -404,7 +404,7 @@ export function validateModelInstance<T>(
  * );
  * ```
  */
-export function validateQueryResult<T>(data: unknown, schema: Schema<T>): T {
+export function validateQueryResult<T>(data: unknown, _schema: Schema<T>): T {
   const result = schema.validate(data);
 
   if (!result.ok) {
@@ -441,8 +441,7 @@ export function sequelizeCreate<T, K extends keyof T>(
   }
 
   if ('omit' in schema && typeof schema.omit === 'function') {
-    const omitObj = omitKeys.reduce((acc, key) => ({ ...acc, [key]: true }), {});
-    return (schema as any).omit(omitObj);
+    return (schema as any).omit(omitKeys);
   }
 
   return schema as any;
@@ -467,8 +466,7 @@ export function sequelizeUpdate<T, K extends keyof T>(
 
   // First omit keys
   if (omitKeys && omitKeys.length > 0 && 'omit' in schema && typeof schema.omit === 'function') {
-    const omitObj = omitKeys.reduce((acc, key) => ({ ...acc, [key]: true }), {});
-    result = (schema as any).omit(omitObj);
+    result = (schema as any).omit(omitKeys);
   }
 
   // Then make partial

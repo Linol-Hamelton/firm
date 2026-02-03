@@ -5,7 +5,7 @@
  */
 
 import { describe, bench } from 'vitest';
-import { s, compile } from '../../src/index.js';
+import { s, compile } from '../../src/index';
 
 describe('Primitive Validation Benchmarks', () => {
   // String benchmarks

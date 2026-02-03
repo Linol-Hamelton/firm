@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'expect-type';
-import { s } from '../../src/index.js';
-import type { Schema } from '../../src/common/types/schema.js';
+import { s } from '../../src/index';
+import type { Schema } from '../../src/common/types/schema';
 
 // ============================================================================
 // BASIC TYPE TESTS

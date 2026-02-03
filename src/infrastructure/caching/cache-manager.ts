@@ -72,7 +72,7 @@ export class CacheWarmer {
 
         this.cache.set(data, schemaId, mockResult);
         successful++;
-      } catch (error) {
+      } catch {
         failed++;
       }
     }

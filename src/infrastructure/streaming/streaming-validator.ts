@@ -80,9 +80,12 @@ export async function validateStream<T>(
   let totalBytes = 0;
   let chunkIndex = 0;
   let itemIndex = 0;
+  let shouldAbort = false;
 
   try {
     for await (const chunk of iterable) {
+      if (shouldAbort) break;
+
       // Check size limits
       const chunkBytes = Buffer.isBuffer(chunk) ? chunk.length : Buffer.byteLength(chunk, encoding);
       totalBytes += chunkBytes;
@@ -105,6 +108,8 @@ export async function validateStream<T>(
       const lines = text.split('\n').filter(line => line.trim());
 
       for (const line of lines) {
+        if (shouldAbort) break;
+
         try {
           const data = JSON.parse(line);
           const result = schema.validate(data);
@@ -121,7 +126,8 @@ export async function validateStream<T>(
             errors.push(error);
             onError?.(error);
             if (abortEarly) {
-              throw new Error('Aborted early due to validation error');
+              shouldAbort = true;
+              break;
             }
           }
         } catch (parseError) {
@@ -133,7 +139,10 @@ export async function validateStream<T>(
           };
           errors.push(error);
           onError?.(error);
-          if (abortEarly) break;
+          if (abortEarly) {
+            shouldAbort = true;
+            break;
+          }
         }
         itemIndex++;
       }

@@ -8,9 +8,9 @@ import {
   FlatErrorFormatter,
   I18nErrorFormatter,
   createErrorFormatter,
-} from '../../../src/infrastructure/formatting/error-formatter.js';
-import type { ValidationError } from '../../../src/common/types/result.js';
-import { ErrorCode } from '../../../src/common/types/result.js';
+} from '../../../src/infrastructure/formatting/error-formatter';
+import type { ValidationError } from '../../../src/common/types/result';
+import { ErrorCode } from '../../../src/common/types/result';
 
 const createTestError = (
   path: string,

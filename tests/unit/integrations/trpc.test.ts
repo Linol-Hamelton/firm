@@ -3,8 +3,8 @@
  */
 
 import { s } from '../../../src/index.ts';
-import { firmInput, firmOutput } from '../../../src/integrations/trpc/index.js';
-import { ValidationError } from '../../../src/common/errors/validation-error.js';
+import { firmInput, firmOutput } from '../../../src/integrations/trpc/index';
+import { ValidationError } from '../../../src/common/errors/validation-error';
 
 describe('tRPC Integration', () => {
   describe('firmInput', () => {

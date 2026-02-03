@@ -12,6 +12,41 @@
 // ============================================================================
 
 /**
+ * Coerce query parameter values from strings to appropriate types
+ */
+function coerceQueryValues(query: Record<string, unknown>): Record<string, unknown> {
+  const coerced: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(query)) {
+    if (typeof value === 'string') {
+      // Try to convert to number
+      const num = Number(value);
+      if (!isNaN(num) && value.trim() !== '') {
+        coerced[key] = num;
+        continue;
+      }
+
+      // Try to convert to boolean
+      if (value === 'true') {
+        coerced[key] = true;
+        continue;
+      }
+      if (value === 'false') {
+        coerced[key] = false;
+        continue;
+      }
+
+      // Keep as string
+      coerced[key] = value;
+    } else {
+      coerced[key] = value;
+    }
+  }
+
+  return coerced;
+}
+
+/**
  * Koa middleware for validating request body with FIRM schema.
  *
  * Usage:
@@ -63,9 +98,12 @@ export function validateBody<T>(schema: any) {
 export function validateQuery<T>(schema: any) {
   return async (ctx: any, next: any) => {
     try {
-      const result = await (schema.validateAsync ? 
-        schema.validateAsync(ctx.query) : 
-        Promise.resolve(schema.validate(ctx.query)));
+      // Coerce query parameter types from strings
+      const coercedQuery = coerceQueryValues(ctx.query);
+
+      const result = await (schema.validateAsync ?
+        schema.validateAsync(coercedQuery) :
+        Promise.resolve(schema.validate(coercedQuery)));
       
       if (!result.ok) {
         ctx.status = 400;

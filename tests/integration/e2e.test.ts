@@ -4,8 +4,8 @@
  * Tests real-world usage scenarios.
  */
 
-import { s, compile } from '../../src/index.js';
-import type { Infer } from '../../src/index.js';
+import { s, compile } from '../../src/index';
+import type { Infer } from '../../src/index';
 
 describe('E2E: User Registration Schema', () => {
   const userSchema = s.object({

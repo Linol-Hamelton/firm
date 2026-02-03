@@ -190,7 +190,7 @@ export interface SchemaRegistryPort {
   /**
    * Register a schema.
    */
-  register(name: string, schema: unknown, version?: string): void;
+  register(name: string, _schema: unknown, version?: string): void;
 
   /**
    * Get a schema by name.

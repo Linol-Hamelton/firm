@@ -9,7 +9,7 @@ import {
   NoOpCache,
   SchemaCacheManager,
   createCache,
-} from '../../../src/infrastructure/cache/schema-cache.js';
+} from '../../../src/infrastructure/cache/schema-cache';
 
 describe('LRUCache', () => {
   let cache: LRUCache<string>;

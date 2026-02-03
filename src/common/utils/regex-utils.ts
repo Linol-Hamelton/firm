@@ -61,10 +61,11 @@ export function isComplexRegex(pattern: RegExp): boolean {
   const source = pattern.source;
 
   // Check for nested quantifiers which are common ReDoS vectors
-  const nestedQuantifiers = /(\([^)]*\*\)|[^\\]\*[^+]|(\+|\*)\s*(\+|\*))/;
+  // Look for patterns like (a+)+ or (a*)*  - quantified groups with quantifiers
+  const nestedQuantifiers = /\([^)]*[+*]\)[+*]|[+*][+*]/;
 
-  // Check for alternation with overlapping patterns
-  const overlappingAlternation = /\([^)]+\|[^)]+\)/;
+  // Check for alternation with overlapping patterns - actual | character in groups
+  const overlappingAlternation = /\([^)]*\|[^)]*\)/;
 
   // Check for backreferences
   const backreferences = /\\[1-9]/;
@@ -92,7 +93,7 @@ function testWithTimeout(pattern: RegExp, input: string, timeout: number): boole
     try {
       result = pattern.test(input);
       resolve(result);
-    } catch (error) {
+    } catch {
       // If regex throws an error, consider it a security violation
       resolve(false);
     }
@@ -134,17 +135,25 @@ export function validateRegexSecurity(
     };
   }
 
-  const testResult = safeRegexTest(pattern, input, finalConfig);
-
-  if (testResult === null) {
+  // Check if pattern is complex/dangerous - don't execute it if so
+  if (isComplexRegex(pattern)) {
     return {
       valid: false,
-      error: 'Regex execution timed out or input too complex'
+      error: 'Regex pattern is potentially dangerous (contains nested quantifiers, backreferences, or is too long) - security violation'
     };
   }
 
-  return {
-    valid: true,
-    result: testResult
-  };
+  // Only test safe patterns
+  try {
+    const result = pattern.test(input);
+    return {
+      valid: true,
+      result
+    };
+  } catch {
+    return {
+      valid: false,
+      error: 'Regex execution failed'
+    };
+  }
 }

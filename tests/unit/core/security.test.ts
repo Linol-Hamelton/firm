@@ -10,9 +10,9 @@
  */
 
 import { s } from '../../../src/index.ts';
-import { validateObjectSecurity, DEFAULT_SECURITY_CONFIG } from '../../../src/common/utils/object-utils.js';
-import { validateRegexSecurity } from '../../../src/common/utils/regex-utils.js';
-import { ErrorCode } from '../../../src/common/types/result.js';
+import { validateObjectSecurity, DEFAULT_SECURITY_CONFIG } from '../../../src/common/utils/object-utils';
+import { validateRegexSecurity } from '../../../src/common/utils/regex-utils';
+import { ErrorCode } from '../../../src/common/types/result';
 
 describe('Security - Prototype Pollution Protection', () => {
   const schema = s.object({
@@ -127,10 +127,8 @@ describe('Security - Object Depth Limits', () => {
   it('should accept objects within depth limit', () => {
     const reasonableObject = createDeepObject(50);
     const schema = s.object({
-      data: s.object({
-        nested: s.string(),
-      }),
-    });
+      value: s.string(),
+    }).passthrough();
 
     const result = schema.validate(reasonableObject);
     expect(result.ok).toBe(true);

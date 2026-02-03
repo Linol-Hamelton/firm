@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { s } from '../../../src/app/firm.js';
+import { s } from '../../../src/app/firm';
 
 describe('Async Validation', () => {
   describe('validateAsync()', () => {

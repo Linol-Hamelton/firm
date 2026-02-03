@@ -232,12 +232,12 @@ export class ArrayValidator<T> extends BaseSchema<T[], ArrayConfig<T>> {
         }
 
         return ok(validated);
-      } catch (error) {
+      } catch (_error) {
         // Should not happen, but handle just in case
         return err(
           createError(
             ErrorCode.UNKNOWN_ERROR,
-            error instanceof Error ? error.message : 'Parallel validation failed',
+            _error instanceof Error ? _error.message : 'Parallel validation failed',
             path
           )
         );

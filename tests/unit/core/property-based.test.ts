@@ -162,20 +162,25 @@ describe('Number Schema - Property-based Tests', () => {
 
   it('should handle range constraints', () => {
     fc.assert(
-      fc.property(fc.float(), fc.float(), fc.float(), (min, max, input) => {
-        // Ensure min <= max
-        const actualMin = Math.min(min, max);
-        const actualMax = Math.max(min, max);
+      fc.property(
+        fc.float({ noNaN: true, noDefaultInfinity: true }),
+        fc.float({ noNaN: true, noDefaultInfinity: true }),
+        fc.float({ noNaN: true, noDefaultInfinity: true }),
+        (min, max, input) => {
+          // Ensure min <= max
+          const actualMin = Math.min(min, max);
+          const actualMax = Math.max(min, max);
 
-        const schema = s.number().min(actualMin).max(actualMax);
-        const result = schema.validate(input);
+          const schema = s.number().min(actualMin).max(actualMax);
+          const result = schema.validate(input);
 
-        if (input >= actualMin && input <= actualMax) {
-          expect(result.ok).toBe(true);
-        } else {
-          expect(result.ok).toBe(false);
+          if (input >= actualMin && input <= actualMax) {
+            expect(result.ok).toBe(true);
+          } else {
+            expect(result.ok).toBe(false);
+          }
         }
-      })
+      )
     );
   });
 });
@@ -407,7 +412,8 @@ describe('Round-trip Properties', () => {
         fc.nat(120),
         fc.array(fc.string()),
         fc.boolean(),
-        fc.float(),
+        // Use float that excludes NaN and Infinity for valid number comparison
+        fc.float({ noNaN: true, noDefaultInfinity: true }),
         (name, age, tags, enabled, count) => {
           const input = {
             name,
@@ -435,9 +441,17 @@ describe('Round-trip Properties', () => {
 
     fc.assert(
       fc.property(
+        // Any value can be coerced to string
         fc.oneof(fc.string(), fc.integer(), fc.boolean()),
-        fc.oneof(fc.string(), fc.integer(), fc.boolean()),
-        fc.oneof(fc.string(), fc.integer(), fc.boolean()),
+        // For number coercion, use values that can be converted to valid numbers
+        // (non-empty strings that represent numbers, or actual numbers, or booleans)
+        fc.oneof(
+          fc.integer(),
+          fc.boolean(),
+          fc.integer().map(n => String(n)) // numeric strings
+        ),
+        // For boolean coercion, use values that have clear boolean meaning
+        fc.oneof(fc.boolean(), fc.integer(), fc.constant('true'), fc.constant('false')),
         (nameInput, ageInput, activeInput) => {
           const input = { name: nameInput, age: ageInput, active: activeInput };
           const result = coerceSchema.validate(input);

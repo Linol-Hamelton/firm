@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { validateBody, validateQuery, validateParams, validateHeaders } from '../../../src/integrations/koa/index.js';
-import { s } from '../../../src/app/firm.js';
+import { validateBody, validateQuery, validateParams, validateHeaders } from '../../../src/integrations/koa/index';
+import { s } from '../../../src/app/firm';
 
 describe('Koa Integration', () => {
   describe('validateBody', () => {
@@ -62,7 +62,7 @@ describe('Koa Integration', () => {
 
       const middleware = validateParams(schema);
       const ctx: any = {
-        params: { id: '123e4567-e89b-12d3-a456-426614174000' },
+        params: { id: '123e4567-e89b-42d3-a456-426614174000' },
         status: 200,
         body: null,
       };
@@ -71,7 +71,7 @@ describe('Koa Integration', () => {
       await middleware(ctx, next);
 
       expect(ctx.status).toBe(200);
-      expect(ctx.validatedParams).toEqual({ id: '123e4567-e89b-12d3-a456-426614174000' });
+      expect(ctx.validatedParams).toEqual({ id: '123e4567-e89b-42d3-a456-426614174000' });
       expect(next).toHaveBeenCalled();
     });
 
@@ -197,7 +197,7 @@ describe('Koa Integration', () => {
 
       const ctx: any = {
         request: { body: { name: 'John' } },
-        params: { id: '123e4567-e89b-12d3-a456-426614174000' },
+        params: { id: '123e4567-e89b-42d3-a456-426614174000' },
         query: { debug: 'true' },
         status: 200,
         body: null,
@@ -212,7 +212,7 @@ describe('Koa Integration', () => {
       });
 
       expect(ctx.validatedBody).toEqual({ name: 'John' });
-      expect(ctx.validatedParams).toEqual({ id: '123e4567-e89b-12d3-a456-426614174000' });
+      expect(ctx.validatedParams).toEqual({ id: '123e4567-e89b-42d3-a456-426614174000' });
       expect(ctx.validatedQuery).toEqual({ debug: true });
       expect(next).toHaveBeenCalled();
     });

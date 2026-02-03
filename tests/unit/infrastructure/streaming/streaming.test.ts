@@ -1,7 +1,7 @@
 // @ts-ignore - TypeScript doesn't see compiled files
 import { s } from '../../../../src/index';
 // @ts-ignore - TypeScript doesn't see compiled files
-import { validateStream, validateArrayStream, isStream } from '../../../../src/infrastructure/streaming/streaming-validator.js';
+import { validateStream, validateArrayStream, isStream } from '../../../../src/infrastructure/streaming/streaming-validator';
 
 describe('Streaming Validation', () => {
   const userSchema = s.object({

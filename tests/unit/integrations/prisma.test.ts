@@ -11,8 +11,8 @@ import {
   createValidatedClient,
   prismaUpdate,
   prismaOmit,
-} from '../../../src/integrations/prisma/index.js';
-import { ValidationException } from '../../../src/common/errors/validation-error.js';
+} from '../../../src/integrations/prisma/index';
+import { ValidationException } from '../../../src/common/errors/validation-error';
 
 describe('Prisma Integration', () => {
   const userSchema = s.object({

@@ -175,5 +175,3 @@ describe('StringValidator', () => {
     });
   });
 });
-
-export {};

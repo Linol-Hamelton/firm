@@ -11,6 +11,51 @@
 // NESTJS INTEGRATION
 // ============================================================================
 
+// Helper to get BadRequestException - use NestJS if available, otherwise create a simple one
+function getBadRequestException(): new (response: unknown) => Error {
+  try {
+    const nestCommon = require('@nestjs/common');
+    if (nestCommon && nestCommon.BadRequestException) {
+      return nestCommon.BadRequestException;
+    }
+  } catch {
+    // @nestjs/common not installed
+  }
+  // Fallback to simple error class
+  return class BadRequestException extends Error {
+    response: unknown;
+    constructor(response: unknown) {
+      super(typeof response === 'object' && response !== null && 'message' in response
+        ? String((response as any).message)
+        : 'Bad Request');
+      this.response = response;
+      this.name = 'BadRequestException';
+    }
+  } as any;
+}
+
+// Helper to get InternalServerErrorException
+function getInternalServerErrorException(): new (response: unknown) => Error {
+  try {
+    const nestCommon = require('@nestjs/common');
+    if (nestCommon && nestCommon.InternalServerErrorException) {
+      return nestCommon.InternalServerErrorException;
+    }
+  } catch {
+    // @nestjs/common not installed
+  }
+  return class InternalServerErrorException extends Error {
+    response: unknown;
+    constructor(response: unknown) {
+      super(typeof response === 'object' && response !== null && 'message' in response
+        ? String((response as any).message)
+        : 'Internal Server Error');
+      this.response = response;
+      this.name = 'InternalServerErrorException';
+    }
+  } as any;
+}
+
 /**
  * NestJS validation pipe using FIRM schemas.
  * Can be used as a global pipe or method-level pipe.
@@ -38,7 +83,8 @@ export class FirmValidationPipe<T> {
         },
       }));
 
-      throw new (require('@nestjs/common').BadRequestException)({
+      const BadRequestException = getBadRequestException();
+      throw new BadRequestException({
         message: 'Validation failed',
         errors,
       });
@@ -59,7 +105,8 @@ export class FirmValidationPipe<T> {
         },
       }));
 
-      throw new (require('@nestjs/common').BadRequestException)({
+      const BadRequestException = getBadRequestException();
+      throw new BadRequestException({
         message: 'Validation failed',
         errors,
       });
@@ -189,9 +236,10 @@ export function FirmGuard<T>(schema: any) {
     canActivate(context: any): boolean | Promise<boolean> {
       const request = context.switchToHttp().getRequest();
       const result = schema.validate(request.body);
-      
+
       if (!result.ok) {
-        throw new (require('@nestjs/common').BadRequestException)({
+        const BadRequestException = getBadRequestException();
+        throw new BadRequestException({
           message: 'Validation failed',
           errors: result.errors.map((error: any) => ({
             property: error.path,
@@ -201,7 +249,7 @@ export function FirmGuard<T>(schema: any) {
           })),
         });
       }
-      
+
       // Attach validated data to request
       request.validatedBody = result.data;
       return true;
@@ -227,7 +275,8 @@ export function FirmResponseInterceptor<T>(schema: any) {
         map((data: unknown) => {
           const result = schema.validate(data);
           if (!result.ok) {
-            throw new (require('@nestjs/common').InternalServerErrorException)({
+            const InternalServerErrorException = getInternalServerErrorException();
+            throw new InternalServerErrorException({
               message: 'Response validation failed',
               errors: result.errors,
             });
@@ -253,7 +302,7 @@ export function FirmResponseInterceptor<T>(schema: any) {
  * }
  * ```
  */
-export function createDto<T>(schema: any, className: string): any {
+export function createDto<T>(schema: any, _className: string): any {
   return class {
     constructor(data: T) {
       Object.assign(this, data);

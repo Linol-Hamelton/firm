@@ -3,7 +3,7 @@
  */
 
 import { s } from '../../../src/index.ts';
-import { firmResolver, getErrorMessage, hasError } from '../../../src/integrations/react-hook-form/index.js';
+import { firmResolver, getErrorMessage, hasError } from '../../../src/integrations/react-hook-form/index';
 
 describe('React Hook Form Integration', () => {
   describe('firmResolver', () => {

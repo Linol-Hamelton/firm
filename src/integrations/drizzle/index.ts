@@ -253,7 +253,7 @@ function getTableName(table: any): string {
  * await db.insert(users).values(validated);
  * ```
  */
-export function validateInsert<T>(data: unknown, schema: Schema<T>): T {
+export function validateInsert<T>(data: unknown, _schema: Schema<T>): T {
   const result = schema.validate(data);
 
   if (!result.ok) {
@@ -310,7 +310,7 @@ export function validateUpdate<T>(
  * const validated = validateQueryResult(users, s.array(userSchema));
  * ```
  */
-export function validateQueryResult<T>(data: unknown, schema: Schema<T>): T {
+export function validateQueryResult<T>(data: unknown, _schema: Schema<T>): T {
   const result = schema.validate(data);
 
   if (!result.ok) {
@@ -343,8 +343,7 @@ export function drizzleInsert<T, K extends keyof T>(
   omitKeys: K[]
 ): Schema<Omit<T, K>> {
   if ('omit' in schema && typeof schema.omit === 'function') {
-    const omitObj = omitKeys.reduce((acc, key) => ({ ...acc, [key]: true }), {});
-    return (schema as any).omit(omitObj);
+    return (schema as any).omit(omitKeys);
   }
   return schema as any;
 }
@@ -368,8 +367,7 @@ export function drizzleUpdate<T, K extends keyof T>(
 
   // First omit keys
   if ('omit' in schema && typeof schema.omit === 'function') {
-    const omitObj = omitKeys.reduce((acc, key) => ({ ...acc, [key]: true }), {});
-    result = (schema as any).omit(omitObj);
+    result = (schema as any).omit(omitKeys);
   }
 
   // Then make partial

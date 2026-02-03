@@ -88,12 +88,19 @@ export function safeShallowCopy(obj: Record<string, unknown>): Record<string, un
  * @returns True if value is a plain object
  */
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return (
-    value !== null &&
-    typeof value === 'object' &&
-    !Array.isArray(value) &&
-    (value.constructor === Object || value.constructor == null)
-  );
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+
+  // Handle objects created with Object.create(null)
+  if (Object.getPrototypeOf(value) === null) {
+    return true;
+  }
+
+  // Check if it's a plain object (created with {} or new Object())
+  // Use Object.prototype.toString for more reliable check
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
 }
 
 /**
@@ -151,6 +158,52 @@ export const DEFAULT_SECURITY_CONFIG: Required<ObjectValidationConfig> = {
 };
 
 /**
+ * Dangerous property names that could lead to prototype pollution
+ */
+const DANGEROUS_PROPERTY_NAMES = new Set([
+  '__proto__',
+  'constructor',
+  'prototype',
+  'toString',
+  'hasOwnProperty',
+  'valueOf',
+  'isPrototypeOf'
+]);
+
+/**
+ * Check for circular references in an object
+ */
+function hasCircularReferences(obj: unknown, seen = new WeakSet()): boolean {
+  if (obj === null || typeof obj !== 'object') {
+    return false;
+  }
+
+  if (seen.has(obj as object)) {
+    return true;
+  }
+
+  seen.add(obj as object);
+
+  if (isPlainObject(obj)) {
+    const keys = getOwnKeys(obj as Record<string, unknown>);
+    for (const key of keys) {
+      const value = (obj as Record<string, unknown>)[key];
+      if (hasCircularReferences(value, seen)) {
+        return true;
+      }
+    }
+  } else if (Array.isArray(obj)) {
+    for (const item of obj) {
+      if (hasCircularReferences(item, seen)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
  * Validate object security constraints.
  *
  * @param obj - Object to validate
@@ -163,10 +216,67 @@ export function validateObjectSecurity(
 ): { valid: boolean; error?: string } {
   const finalConfig = { ...DEFAULT_SECURITY_CONFIG, ...config };
 
+  // Early check for non-objects
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+    return { valid: true };
+  }
+
+  const objRecord = obj as Record<string, unknown>;
+
+  // Check for prototype pollution attempts BEFORE isPlainObject check
+  // because objects with polluted prototype may not pass isPlainObject
+  if (finalConfig.protectPrototype) {
+    // Use both Object.keys and for..in to catch all property names
+    const allKeys = new Set([
+      ...Object.keys(objRecord),
+      ...getOwnKeys(objRecord)
+    ]);
+
+    for (const key of allKeys) {
+      if (DANGEROUS_PROPERTY_NAMES.has(key)) {
+        return {
+          valid: false,
+          error: `Dangerous property name detected: ${key}`
+        };
+      }
+    }
+
+    // Also check if prototype was polluted
+    const proto = Object.getPrototypeOf(obj);
+    if (proto !== null && proto !== Object.prototype) {
+      // Allow class instances (they have a constructor function with a name)
+      if (typeof proto.constructor === 'function' &&
+          proto.constructor !== Object &&
+          proto.constructor.name) {
+        // This is likely a class instance - skip further prototype checks
+        // but continue with other security checks
+      } else {
+        // Check if it's a suspicious prototype (not null, not Object.prototype, not a class)
+        // This catches cases like { '__proto__': { polluted: true } }
+        const protoProto = Object.getPrototypeOf(proto);
+        if (protoProto !== null && protoProto !== Object.prototype) {
+          return {
+            valid: false,
+            error: 'Object has suspicious prototype chain'
+          };
+        }
+      }
+    }
+  }
+
   if (!isPlainObject(obj)) {
     return { valid: true };
   }
 
+  // Check for circular references
+  if (hasCircularReferences(obj)) {
+    return {
+      valid: false,
+      error: 'Circular reference detected in object'
+    };
+  }
+
+  // Validate object depth
   if (finalConfig.validateDepth) {
     if (!validateObjectDepth(obj, finalConfig.maxDepth)) {
       return {
@@ -175,11 +285,6 @@ export function validateObjectSecurity(
       };
     }
   }
-
-  // Additional security checks can be added here
-  // - Check for dangerous property names
-  // - Validate property name patterns
-  // - Check for circular references
 
   return { valid: true };
 }

@@ -7,8 +7,8 @@ import {
   ValidatedEntity,
   createValidationSubscriber,
   validateQueryResult,
-} from '../../../src/integrations/typeorm/index.js';
-import { ValidationException } from '../../../src/common/errors/validation-error.js';
+} from '../../../src/integrations/typeorm/index';
+import { ValidationException } from '../../../src/common/errors/validation-error';
 
 describe('TypeORM Integration', () => {
   const userSchema = s.object({

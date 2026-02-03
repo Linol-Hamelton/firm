@@ -4,8 +4,8 @@
  * Tests for NestJS integration (pipes, decorators, modules).
  */
 
-import { s } from '../../../src/app/firm.js';
-import { FirmValidationPipe } from '../../../src/integrations/nestjs/index.js';
+import { s } from '../../../src/app/firm';
+import { FirmValidationPipe } from '../../../src/integrations/nestjs/index';
 
 describe('NestJS Integration', () => {
   describe('FirmValidationPipe', () => {

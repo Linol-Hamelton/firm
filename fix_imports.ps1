@@ -8,9 +8,27 @@ foreach ($file in $testFiles) {
     $newContent = $content -replace "from '../../../src/index'", "from '../../../src/index.ts'"
     $newContent = $newContent -replace "from '../../../src/index.js'", "from '../../../src/index.ts'"
     
-    # Remove imports of describe, it, expect from 'vitest' (since globals: true)
-    $newContent = $newContent -replace "import { describe, it, expect } from 'vitest';`r?`n", ""
-    $newContent = $newContent -replace "import { describe, it, expect } from 'vitest'`r?`n", ""
+    # Add import of describe, it, expect from 'vitest' if missing
+    if ($newContent -match 'import.*from.*vitest') {
+        # Already has import, keep it
+    } else {
+        # Add import at the top after any comments
+        $lines = $newContent -split "`n"
+        $importAdded = $false
+        $newLines = @()
+        foreach ($line in $lines) {
+            if (-not $importAdded -and $line -match '^\s*import') {
+                $newLines += "import { describe, it, expect } from 'vitest';"
+                $importAdded = $true
+            }
+            $newLines += $line
+        }
+        if (-not $importAdded) {
+            # No import found, add at the beginning
+            $newLines = @("import { describe, it, expect } from 'vitest';") + $newLines
+        }
+        $newContent = $newLines -join "`n"
+    }
     
     if ($newContent -ne $content) {
         Write-Host "Fixing $($file.FullName)"

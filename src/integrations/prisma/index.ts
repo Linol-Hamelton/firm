@@ -379,8 +379,7 @@ export function prismaOmit<T, K extends keyof T>(
   keys: K[]
 ): Schema<Omit<T, K>> {
   if ('omit' in schema && typeof schema.omit === 'function') {
-    const omitObj = keys.reduce((acc, key) => ({ ...acc, [key]: true }), {});
-    return (schema as any).omit(omitObj);
+    return (schema as any).omit(keys);
   }
   return schema as any;
 }
@@ -401,8 +400,7 @@ export function prismaPick<T, K extends keyof T>(
   keys: K[]
 ): Schema<Pick<T, K>> {
   if ('pick' in schema && typeof schema.pick === 'function') {
-    const pickObj = keys.reduce((acc, key) => ({ ...acc, [key]: true }), {});
-    return (schema as any).pick(pickObj);
+    return (schema as any).pick(keys);
   }
   return schema as any;
 }

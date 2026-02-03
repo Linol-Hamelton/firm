@@ -10,7 +10,7 @@ import {
   createLogger,
   setGlobalLogger,
   getGlobalLogger,
-} from '../../../src/infrastructure/logging/logger.js';
+} from '../../../src/infrastructure/logging/logger';
 
 describe('ConsoleLogger', () => {
   let consoleSpy: {

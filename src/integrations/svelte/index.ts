@@ -180,7 +180,7 @@ export function createFirmStore<T extends Record<string, any>>(
       }));
 
       return false;
-    } catch (error) {
+    } catch {
       update((s) => ({ ...s, isValidating: false }));
       return false;
     }
@@ -351,7 +351,7 @@ export function createFirmField<T>(
  * <input use:firmAction={emailSchema} />
  * ```
  */
-export function firmAction(node: HTMLInputElement, schema: Schema<any>) {
+export function firmAction(node: HTMLInputElement, _schema: Schema<any>) {
   const handleBlur = async () => {
     const result = schema.validate(node.value);
 

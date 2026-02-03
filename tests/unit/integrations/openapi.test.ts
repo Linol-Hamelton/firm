@@ -3,7 +3,7 @@
  */
 
 import { s } from '../../../src/index.ts';
-import { schemaToOpenAPI, generateOpenAPI } from '../../../src/integrations/openapi/index.js';
+import { schemaToOpenAPI, generateOpenAPI } from '../../../src/integrations/openapi/index';
 
 describe('OpenAPI Integration', () => {
   describe('schemaToOpenAPI', () => {

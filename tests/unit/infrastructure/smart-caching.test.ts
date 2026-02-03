@@ -10,7 +10,7 @@ import {
   withCache,
   withCacheConfig,
   globalCache,
-} from '../../../src/infrastructure/caching/index.js';
+} from '../../../src/infrastructure/caching/index';
 
 describe('Smart Caching', () => {
   describe('ValidationCache', () => {

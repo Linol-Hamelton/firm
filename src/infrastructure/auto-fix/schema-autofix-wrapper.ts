@@ -37,24 +37,33 @@ class AutoFixSchema<T> implements Schema<T> {
 
     // If validation failed and auto-fix is enabled, try to fix
     if (!result.ok && this.fixer.isEnabled()) {
-      let currentData = data;
+      let currentData = this.deepClone(data);
       let fixed = false;
 
       // Try to fix each error
       for (const error of result.errors) {
+        // Get the value at the error path
+        const pathParts = error.path ? error.path.split('.').filter(p => p) : [];
+        const valueAtPath = this.getValueAtPath(currentData, pathParts);
+
         const context: any = {
           errorCode: error.code,
           path: error.path,
-          originalValue: data,
+          originalValue: valueAtPath,
         };
         if (error.expected !== undefined) {
           context.expected = error.expected;
         }
 
-        const fixResult = this.fixer.fix(currentData, context);
+        const fixResult = this.fixer.fix(valueAtPath, context);
 
         if (fixResult.fixed) {
-          currentData = fixResult.value;
+          // Set the fixed value back at the path
+          if (pathParts.length === 0) {
+            currentData = fixResult.value;
+          } else {
+            this.setValueAtPath(currentData, pathParts, fixResult.value);
+          }
           fixed = true;
         }
       }
@@ -66,6 +75,49 @@ class AutoFixSchema<T> implements Schema<T> {
     }
 
     return result;
+  }
+
+  private deepClone(obj: unknown): unknown {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.deepClone(item));
+    }
+    const cloned: Record<string, unknown> = {};
+    for (const key in obj as Record<string, unknown>) {
+      cloned[key] = this.deepClone((obj as Record<string, unknown>)[key]);
+    }
+    return cloned;
+  }
+
+  private getValueAtPath(obj: unknown, path: string[]): unknown {
+    if (path.length === 0) {
+      return obj;
+    }
+    let current = obj;
+    for (const key of path) {
+      if (current === null || current === undefined || typeof current !== 'object') {
+        return undefined;
+      }
+      current = (current as Record<string, unknown>)[key];
+    }
+    return current;
+  }
+
+  private setValueAtPath(obj: unknown, path: string[], value: unknown): void {
+    if (path.length === 0 || obj === null || typeof obj !== 'object') {
+      return;
+    }
+    let current = obj as Record<string, unknown>;
+    for (let i = 0; i < path.length - 1; i++) {
+      const key = path[i];
+      if (current[key] === null || current[key] === undefined || typeof current[key] !== 'object') {
+        return;
+      }
+      current = current[key] as Record<string, unknown>;
+    }
+    current[path[path.length - 1]] = value;
   }
 
   compile(): CompiledValidator<T> {

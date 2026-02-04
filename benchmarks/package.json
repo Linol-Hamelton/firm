@@ -1,0 +1,29 @@
+{
+  "name": "firm-benchmarks",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Performance benchmarks for FIRM validator",
+  "type": "module",
+  "scripts": {
+    "bench": "tsx suites/all.bench.ts",
+    "bench:simple": "tsx suites/simple-objects.bench.ts",
+    "bench:complex": "tsx suites/complex-objects.bench.ts",
+    "bench:arrays": "tsx suites/arrays.bench.ts",
+    "bench:strings": "tsx suites/strings.bench.ts",
+    "bench:coercion": "tsx suites/coercion.bench.ts",
+    "bench:caching": "tsx suites/caching.bench.ts",
+    "bench:caching-realistic": "tsx suites/caching-realistic.bench.ts",
+    "report": "tsx generate-report.ts"
+  },
+  "dependencies": {
+    "firm-validator": "file:..",
+    "zod": "^3.22.4",
+    "valibot": "^1.2.0",
+    "yup": "^1.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

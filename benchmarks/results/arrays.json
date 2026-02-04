@@ -1,0 +1,136 @@
+{
+  "timestamp": "2026-02-04T03:47:11.654Z",
+  "environment": {
+    "node": "v22.21.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "suites": [
+    {
+      "name": "Array Validation - 10 Items",
+      "description": "Small array with 10 objects",
+      "results": [
+        {
+          "name": "array-10-firm",
+          "library": "FIRM",
+          "opsPerSecond": 36052.652736161996,
+          "avgTimeMs": 0.026947269999999537,
+          "minTimeMs": 0.01779999999996562,
+          "maxTimeMs": 0.8491000000000213,
+          "stdDev": 0.02860564340383047
+        },
+        {
+          "name": "array-10-zod",
+          "library": "Zod",
+          "opsPerSecond": 43129.604894002514,
+          "avgTimeMs": 0.02253340000000087,
+          "minTimeMs": 0.012400000000070577,
+          "maxTimeMs": 0.9717000000000553,
+          "stdDev": 0.03507405908132169
+        },
+        {
+          "name": "array-10-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 59131.81486774878,
+          "avgTimeMs": 0.016467090000000576,
+          "minTimeMs": 0.011199999999917054,
+          "maxTimeMs": 0.7572999999999865,
+          "stdDev": 0.02019505399675593
+        },
+        {
+          "name": "array-10-yup",
+          "library": "Yup",
+          "opsPerSecond": 3270.294924414297,
+          "avgTimeMs": 0.3048535921736444,
+          "minTimeMs": 0.17079999999987194,
+          "maxTimeMs": 1.5292999999996937,
+          "stdDev": 0.12264256213928007
+        }
+      ]
+    },
+    {
+      "name": "Array Validation - 50 Items",
+      "description": "Medium array with 50 objects",
+      "results": [
+        {
+          "name": "array-50-firm",
+          "library": "FIRM",
+          "opsPerSecond": 8040.942105216843,
+          "avgTimeMs": 0.12379563487128106,
+          "minTimeMs": 0.07789999999977226,
+          "maxTimeMs": 1.8211999999998625,
+          "stdDev": 0.05888028778474075
+        },
+        {
+          "name": "array-50-zod",
+          "library": "Zod",
+          "opsPerSecond": 12796.224601893464,
+          "avgTimeMs": 0.07761687000000056,
+          "minTimeMs": 0.04929999999967549,
+          "maxTimeMs": 1.1831999999994878,
+          "stdDev": 0.04803404007995425
+        },
+        {
+          "name": "array-50-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 12960.672524113003,
+          "avgTimeMs": 0.07664540000000097,
+          "minTimeMs": 0.044100000000071304,
+          "maxTimeMs": 0.6433999999999287,
+          "stdDev": 0.03029860463519502
+        },
+        {
+          "name": "array-50-yup",
+          "library": "Yup",
+          "opsPerSecond": 597.9972492126535,
+          "avgTimeMs": 1.670693311036771,
+          "minTimeMs": 0.9728999999997541,
+          "maxTimeMs": 3.2391999999999825,
+          "stdDev": 0.45201024667488254
+        }
+      ]
+    },
+    {
+      "name": "Array Validation - 100 Items",
+      "description": "Large array with 100 objects",
+      "results": [
+        {
+          "name": "array-100-firm",
+          "library": "FIRM",
+          "opsPerSecond": 3785.713236071056,
+          "avgTimeMs": 0.26342809611830503,
+          "minTimeMs": 0.16630000000077416,
+          "maxTimeMs": 0.9659999999985303,
+          "stdDev": 0.09732503046735656
+        },
+        {
+          "name": "array-100-zod",
+          "library": "Zod",
+          "opsPerSecond": 5222.647993525236,
+          "avgTimeMs": 0.1907325291977853,
+          "minTimeMs": 0.11349999999947613,
+          "maxTimeMs": 2.1093999999993684,
+          "stdDev": 0.09353083392728913
+        },
+        {
+          "name": "array-100-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 6485.487646475931,
+          "avgTimeMs": 0.1536298180696921,
+          "minTimeMs": 0.09900000000016007,
+          "maxTimeMs": 1.3046999999987747,
+          "stdDev": 0.05130413546625489
+        },
+        {
+          "name": "array-100-yup",
+          "library": "Yup",
+          "opsPerSecond": 362.1855894834871,
+          "avgTimeMs": 2.7593355371901245,
+          "minTimeMs": 1.7052000000003318,
+          "maxTimeMs": 4.49369999999908,
+          "stdDev": 0.6272316766355825
+        }
+      ]
+    }
+  ]
+}

@@ -295,5 +295,169 @@ describe('TupleValidator', () => {
       expect(schema.validate(['hello', 42, true, false]).ok).toBe(true);
       expect(schema.validate(['hello', 42, 'not boolean']).ok).toBe(false);
     });
+
+    it('should use is() type guard with rest elements', () => {
+      const schema = s.tuple([s.string()]).rest(s.number());
+
+      expect(schema.is(['hello', 1, 2, 3])).toBe(true);
+      expect(schema.is(['hello', 1, 'not number'])).toBe(false);
+      expect(schema.is(['hello'])).toBe(true);
+    });
+
+    it('should check minimum length with is()', () => {
+      const schema = s.tuple([s.string(), s.number()]);
+
+      expect(schema.is(['hello', 42])).toBe(true);
+      expect(schema.is(['hello'])).toBe(false); // Too short
+    });
+
+    it('should check maximum length without rest with is()', () => {
+      const schema = s.tuple([s.string(), s.number()]);
+
+      expect(schema.is(['hello', 42])).toBe(true);
+      expect(schema.is(['hello', 42, 'extra'])).toBe(false); // Too long without rest
+    });
+  });
+
+  describe('maxLength', () => {
+    it('should validate array max length', () => {
+      const schema = s.array(s.number()).max(3);
+
+      expect(schema.validate([1, 2, 3]).ok).toBe(true);
+      expect(schema.validate([1, 2]).ok).toBe(true);
+      expect(schema.validate([]).ok).toBe(true);
+    });
+
+    it('should fail when array exceeds max length', () => {
+      const schema = s.array(s.string()).max(2);
+      const result = schema.validate(['a', 'b', 'c']);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.errors[0]?.code).toBe('ARRAY_TOO_LONG');
+        expect(result.errors[0]?.message).toContain('at most 2');
+      }
+    });
+
+    it('should work with both min and max', () => {
+      const schema = s.array(s.number()).min(2).max(4);
+
+      expect(schema.validate([1]).ok).toBe(false);
+      expect(schema.validate([1, 2]).ok).toBe(true);
+      expect(schema.validate([1, 2, 3, 4]).ok).toBe(true);
+      expect(schema.validate([1, 2, 3, 4, 5]).ok).toBe(false);
+    });
+  });
+
+  describe('unique', () => {
+    it('should validate array uniqueness for primitives', () => {
+      const schema = s.array(s.number()).unique();
+
+      expect(schema.validate([1, 2, 3]).ok).toBe(true);
+      expect(schema.validate([1, 2, 2]).ok).toBe(false);
+    });
+
+    it('should fail with proper error when duplicates found', () => {
+      const schema = s.array(s.string()).unique();
+      const result = schema.validate(['a', 'b', 'a']);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.errors[0]?.code).toBe('ARRAY_NOT_UNIQUE');
+        expect(result.errors[0]?.message).toContain('unique');
+      }
+    });
+
+    it('should validate uniqueness for objects', () => {
+      const schema = s.array(s.object({ id: s.number() })).unique();
+
+      expect(schema.validate([{ id: 1 }, { id: 2 }]).ok).toBe(true);
+      expect(schema.validate([{ id: 1 }, { id: 1 }]).ok).toBe(false);
+    });
+
+    it('should detect duplicates at correct index', () => {
+      const schema = s.array(s.number()).unique();
+      const result = schema.validate([1, 2, 3, 2]);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.errors[0]?.path).toContain('[3]');
+      }
+    });
+  });
+
+  describe('element getter', () => {
+    it('should expose element schema via getter', () => {
+      const elementSchema = s.string().min(3);
+      const schema = s.array(elementSchema);
+
+      expect(schema.element).toBe(elementSchema);
+    });
+
+    it('should return the correct element schema', () => {
+      const schema = s.array(s.number().min(10));
+
+      expect(schema.element.validate(15).ok).toBe(true);
+      expect(schema.element.validate(5).ok).toBe(false);
+    });
+  });
+
+  describe('async parallel validation edge cases', () => {
+    it('should handle parallel validation with async element schemas', async () => {
+      const asyncSchema = s.string().refineAsync(
+        async (val) => {
+          await new Promise(resolve => setTimeout(resolve, 1));
+          return val.length > 2;
+        },
+        'Too short'
+      );
+
+      const schema = s.array(asyncSchema).parallel();
+      const result = await schema.validateAsync(['hello', 'world']);
+
+      expect(result.ok).toBe(true);
+    });
+
+    it('should handle errors in parallel async validation', async () => {
+      const asyncSchema = s.string().refineAsync(
+        async (val) => val.length > 2,
+        'Too short'
+      );
+
+      const schema = s.array(asyncSchema).parallel();
+      const result = await schema.validateAsync(['hi', 'hello', 'no']);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.errors.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should validate sequentially with async schemas by default', async () => {
+      const asyncSchema = s.number().refineAsync(
+        async (val) => {
+          await new Promise(resolve => setTimeout(resolve, 1));
+          return val > 0;
+        },
+        'Must be positive'
+      );
+
+      const schema = s.array(asyncSchema);
+      const result = await schema.validateAsync([1, 2, 3]);
+
+      expect(result.ok).toBe(true);
+    });
+
+    it('should handle sequential async validation errors', async () => {
+      const asyncSchema = s.number().refineAsync(
+        async (val) => val > 0,
+        'Must be positive'
+      );
+
+      const schema = s.array(asyncSchema);
+      const result = await schema.validateAsync([1, -1, 2]);
+
+      expect(result.ok).toBe(false);
+    });
   });
 });

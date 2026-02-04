@@ -1,7 +1,7 @@
 {
   "name": "firm-validator",
   "version": "1.0.0",
-  "description": "TypeScript-first schema validator with compiler-first architecture. 9.31KB ESM, zero dependencies.",
+  "description": "The intelligent TypeScript validator with JIT compiler and smart caching. 10.58KB gzipped, zero dependencies.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -68,9 +68,19 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "clean": "rimraf dist",
+    "size": "npm run build && size-limit",
+    "size:why": "npm run build && size-limit --why",
     "prepublishOnly": "npm run test && npm run build",
     "circular": "dpdm --circular --no-warning src/index.ts"
   },
+  "size-limit": [
+    {
+      "name": "Full Bundle with Dependencies",
+      "path": "dist/index.js",
+      "limit": "11 KB",
+      "gzip": true
+    }
+  ],
   "keywords": [
     "validator",
     "schema",

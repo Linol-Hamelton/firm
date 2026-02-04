@@ -3,7 +3,6 @@
  * Revolutionary Feature #10
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { s } from '../../../src/index';
 import {
   AutoFixer,

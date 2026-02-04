@@ -4,7 +4,6 @@
  * Tests for async refinements, transforms, and validation methods.
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { s } from '../../../src/index';
 
 describe('Async Validation', () => {

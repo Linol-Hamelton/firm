@@ -159,4 +159,81 @@ describe('BooleanValidator', () => {
       expect(schema.validate(false).ok).toBe(true);
     });
   });
+
+  describe('true() refinement', () => {
+    it('should only accept true', () => {
+      const schema = s.boolean().true();
+
+      expect(schema.validate(true).ok).toBe(true);
+      expect(schema.validate(false).ok).toBe(false);
+    });
+
+    it('should fail with proper error message', () => {
+      const schema = s.boolean().true();
+      const result = schema.validate(false);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.errors[0]?.message).toContain('must be true');
+      }
+    });
+  });
+
+  describe('false() refinement', () => {
+    it('should only accept false', () => {
+      const schema = s.boolean().false();
+
+      expect(schema.validate(false).ok).toBe(true);
+      expect(schema.validate(true).ok).toBe(false);
+    });
+
+    it('should fail with proper error message', () => {
+      const schema = s.boolean().false();
+      const result = schema.validate(true);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.errors[0]?.message).toContain('must be false');
+      }
+    });
+
+    it('should reject non-boolean values', () => {
+      const schema = s.boolean().false();
+
+      expect(schema.validate('false').ok).toBe(false);
+      expect(schema.validate(0).ok).toBe(false);
+      expect(schema.validate(null).ok).toBe(false);
+    });
+
+    it('should work with is() type guard', () => {
+      const trueSchema = s.boolean().true();
+      const falseSchema = s.boolean().false();
+
+      expect(trueSchema.is(true)).toBe(true);
+      expect(trueSchema.is(false)).toBe(false);
+
+      expect(falseSchema.is(false)).toBe(true);
+      expect(falseSchema.is(true)).toBe(false);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle type coercion explicitly', () => {
+      const schema = s.boolean();
+
+      // These should fail - no automatic coercion
+      expect(schema.validate(1).ok).toBe(false);
+      expect(schema.validate('true').ok).toBe(false);
+      expect(schema.validate([]).ok).toBe(false);
+    });
+
+    it('should chain modifiers correctly', () => {
+      const schema = s.boolean().optional().nullable();
+
+      expect(schema.validate(true).ok).toBe(true);
+      expect(schema.validate(false).ok).toBe(true);
+      expect(schema.validate(null).ok).toBe(true);
+      expect(schema.validate(undefined).ok).toBe(true);
+    });
+  });
 });

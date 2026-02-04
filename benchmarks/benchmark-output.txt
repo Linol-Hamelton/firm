@@ -1,0 +1,34 @@
+
+> firm-benchmarks@1.0.0 bench
+> tsx suites/all.bench.ts
+
+
+======================================================================
+🚀 FIRM VALIDATOR - COMPREHENSIVE BENCHMARK SUITE
+======================================================================
+
+Running all benchmarks...
+
+
+▶▶▶ Running: Simple Objects
+❌ Error running Simple Objects: __dirname is not defined
+
+▶▶▶ Running: Complex Objects
+❌ Error running Complex Objects: __dirname is not defined
+
+▶▶▶ Running: Arrays
+❌ Error running Arrays: __dirname is not defined
+
+▶▶▶ Running: Strings
+❌ Error running Strings: __dirname is not defined
+
+▶▶▶ Running: Coercion
+❌ Error running Coercion: __dirname is not defined
+
+======================================================================
+✅ All benchmarks completed in 0.00s
+======================================================================
+
+📊 Results saved to ./results/
+🔄 Run "npm run report" to generate a comprehensive report
+

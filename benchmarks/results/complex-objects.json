@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-02-04T03:18:45.873Z",
+  "environment": {
+    "node": "v22.21.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "suites": [
+    {
+      "name": "Complex Nested Object - Valid Data",
+      "description": "Validation of complex nested structures",
+      "results": [
+        {
+          "name": "complex-firm",
+          "library": "FIRM",
+          "opsPerSecond": 63320.515150383064,
+          "avgTimeMs": 0.015387629999998945,
+          "minTimeMs": 0.010299999999915599,
+          "maxTimeMs": 0.5600000000000591,
+          "stdDev": 0.014391039433728447
+        },
+        {
+          "name": "complex-zod",
+          "library": "Zod",
+          "opsPerSecond": 57808.84810667353,
+          "avgTimeMs": 0.016842870000000097,
+          "minTimeMs": 0.008600000000001273,
+          "maxTimeMs": 0.7335000000000491,
+          "stdDev": 0.021439182567510536
+        },
+        {
+          "name": "complex-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 122475.17428217307,
+          "avgTimeMs": 0.007879289999998025,
+          "minTimeMs": 0.0039999999999054126,
+          "maxTimeMs": 0.8417000000001735,
+          "stdDev": 0.015377413634806648
+        },
+        {
+          "name": "complex-yup",
+          "library": "Yup",
+          "opsPerSecond": 12354.148467461706,
+          "avgTimeMs": 0.08060635999999904,
+          "minTimeMs": 0.04670000000010077,
+          "maxTimeMs": 1.5183000000001812,
+          "stdDev": 0.04524605540321076
+        }
+      ]
+    }
+  ]
+}

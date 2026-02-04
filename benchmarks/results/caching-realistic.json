@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-02-04T03:53:37.369Z",
+  "environment": {
+    "node": "v22.21.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "suites": [
+    {
+      "name": "API Validation - Without Cache",
+      "description": "Validate 100 API requests without caching",
+      "results": [
+        {
+          "name": "firm-api-no-cache",
+          "library": "FIRM",
+          "opsPerSecond": 2626.964450613568,
+          "avgTimeMs": 0.3794563546423163,
+          "minTimeMs": 0.2544000000000324,
+          "maxTimeMs": 1.3655999999998585,
+          "stdDev": 0.12387911840015979
+        },
+        {
+          "name": "zod-api-no-cache",
+          "library": "Zod",
+          "opsPerSecond": 2620.5796590226937,
+          "avgTimeMs": 0.3809233880198408,
+          "minTimeMs": 0.23569999999972424,
+          "maxTimeMs": 0.9728000000000065,
+          "stdDev": 0.13823537841659683
+        }
+      ]
+    },
+    {
+      "name": "API Validation - With Cache",
+      "description": "Validate 100 API requests with smart caching",
+      "results": [
+        {
+          "name": "firm-api-cached",
+          "library": "FIRM (cached)",
+          "opsPerSecond": 228844.99641857494,
+          "avgTimeMs": 0.003988659999997571,
+          "minTimeMs": 0.0031999999996514816,
+          "maxTimeMs": 0.0955999999996493,
+          "stdDev": 0.0018340794433158749
+        }
+      ]
+    }
+  ]
+}

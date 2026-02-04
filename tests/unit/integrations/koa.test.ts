@@ -4,7 +4,6 @@
  * Tests for Koa middleware and validation integration.
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { validateBody, validateQuery, validateParams, validateHeaders } from '../../../src/integrations/koa/index';
 import { s } from '../../../src/index';
 

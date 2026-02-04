@@ -4,7 +4,6 @@
  * Tests for automatic framework detection and configuration.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Import the actual functions to test
 import {

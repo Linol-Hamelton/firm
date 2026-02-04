@@ -1,0 +1,220 @@
+{
+  "timestamp": "2026-02-04T03:15:05.159Z",
+  "environment": {
+    "node": "v22.21.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "suites": [
+    {
+      "name": "String Validation - Email",
+      "description": "Email address validation",
+      "results": [
+        {
+          "name": "email-firm",
+          "library": "FIRM",
+          "opsPerSecond": 1048514.7788158056,
+          "avgTimeMs": 0.00039822999999989295,
+          "minTimeMs": 0.00009999999997489795,
+          "maxTimeMs": 0.2136000000000422,
+          "stdDev": 0.002972424913618772
+        },
+        {
+          "name": "email-zod",
+          "library": "Zod",
+          "opsPerSecond": 764947.0656630577,
+          "avgTimeMs": 0.001042209999999966,
+          "minTimeMs": 0.0001999999999497959,
+          "maxTimeMs": 0.42540000000002465,
+          "stdDev": 0.006248343085642786
+        },
+        {
+          "name": "email-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 859150.8153341262,
+          "avgTimeMs": 0.0008689399999997704,
+          "minTimeMs": 0.0001999999999497959,
+          "maxTimeMs": 0.6709999999999923,
+          "stdDev": 0.006902292755048687
+        },
+        {
+          "name": "email-yup",
+          "library": "Yup",
+          "opsPerSecond": 270057.8734022703,
+          "avgTimeMs": 0.003415200000000118,
+          "minTimeMs": 0.0010000000000331966,
+          "maxTimeMs": 0.8036999999999921,
+          "stdDev": 0.017787953703560348
+        }
+      ]
+    },
+    {
+      "name": "String Validation - URL",
+      "description": "URL validation",
+      "results": [
+        {
+          "name": "url-firm",
+          "library": "FIRM",
+          "opsPerSecond": 782172.719379894,
+          "avgTimeMs": 0.000953839999999866,
+          "minTimeMs": 0.0001999999999497959,
+          "maxTimeMs": 0.5424000000000433,
+          "stdDev": 0.005780538837722061
+        },
+        {
+          "name": "url-zod",
+          "library": "Zod",
+          "opsPerSecond": 473529.69031158136,
+          "avgTimeMs": 0.0018605599999999185,
+          "minTimeMs": 0.0004999999999881766,
+          "maxTimeMs": 0.3585999999999103,
+          "stdDev": 0.0051115970582975515
+        },
+        {
+          "name": "url-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 441838.57869366003,
+          "avgTimeMs": 0.0019445999999998776,
+          "minTimeMs": 0.0009999999999763531,
+          "maxTimeMs": 0.4007000000000289,
+          "stdDev": 0.004213862935597481
+        },
+        {
+          "name": "url-yup",
+          "library": "Yup",
+          "opsPerSecond": 396171.3995943195,
+          "avgTimeMs": 0.002289940000000297,
+          "minTimeMs": 0.0014999999999645297,
+          "maxTimeMs": 0.2949999999999591,
+          "stdDev": 0.006814215493833612
+        }
+      ]
+    },
+    {
+      "name": "String Validation - UUID",
+      "description": "UUID validation",
+      "results": [
+        {
+          "name": "uuid-firm",
+          "library": "FIRM",
+          "opsPerSecond": 948100.953789556,
+          "avgTimeMs": 0.0007649599999997008,
+          "minTimeMs": 0.0003999999998995918,
+          "maxTimeMs": 0.2845999999999549,
+          "stdDev": 0.003497869379836004
+        },
+        {
+          "name": "uuid-zod",
+          "library": "Zod",
+          "opsPerSecond": 1049879.7887641862,
+          "avgTimeMs": 0.0007558400000003758,
+          "minTimeMs": 0.0001999999999497959,
+          "maxTimeMs": 0.31720000000007076,
+          "stdDev": 0.004709822490753867
+        },
+        {
+          "name": "uuid-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 1641146.833407185,
+          "avgTimeMs": 0.0003981999999999175,
+          "minTimeMs": 0.00029999999992469384,
+          "maxTimeMs": 0.066599999999994,
+          "stdDev": 0.0007652233399466943
+        },
+        {
+          "name": "uuid-yup",
+          "library": "Yup",
+          "opsPerSecond": 431586.9885154703,
+          "avgTimeMs": 0.0020046699999992255,
+          "minTimeMs": 0.0009000000000014552,
+          "maxTimeMs": 0.22730000000001382,
+          "stdDev": 0.006018309828440101
+        }
+      ]
+    },
+    {
+      "name": "String Validation - Regex (Phone)",
+      "description": "Regex pattern validation for phone numbers",
+      "results": [
+        {
+          "name": "regex-firm",
+          "library": "FIRM",
+          "opsPerSecond": 1119482.3513607366,
+          "avgTimeMs": 0.0005567699999995852,
+          "minTimeMs": 0.00029999999992469384,
+          "maxTimeMs": 0.051899999999932334,
+          "stdDev": 0.0007622349815507009
+        },
+        {
+          "name": "regex-zod",
+          "library": "Zod",
+          "opsPerSecond": 781243.8965320627,
+          "avgTimeMs": 0.0009545300000005341,
+          "minTimeMs": 0.0001999999999497959,
+          "maxTimeMs": 0.5167000000000144,
+          "stdDev": 0.005351609802583033
+        },
+        {
+          "name": "regex-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 1183095.9254176312,
+          "avgTimeMs": 0.0005436599999994542,
+          "minTimeMs": 0.00029999999992469384,
+          "maxTimeMs": 0.6149999999998954,
+          "stdDev": 0.006925140417665821
+        },
+        {
+          "name": "regex-yup",
+          "library": "Yup",
+          "opsPerSecond": 453862.5976371892,
+          "avgTimeMs": 0.001921879999999419,
+          "minTimeMs": 0.0009000000000014552,
+          "maxTimeMs": 0.37229999999999563,
+          "stdDev": 0.009344826764879376
+        }
+      ]
+    },
+    {
+      "name": "String Validation - Length Constraints",
+      "description": "Min/max length validation",
+      "results": [
+        {
+          "name": "length-firm",
+          "library": "FIRM",
+          "opsPerSecond": 1285115.788932589,
+          "avgTimeMs": 0.00045853000000028034,
+          "minTimeMs": 0.00009999999997489795,
+          "maxTimeMs": 0.08109999999999218,
+          "stdDev": 0.0012120879667335527
+        },
+        {
+          "name": "length-zod",
+          "library": "Zod",
+          "opsPerSecond": 832833.6331534404,
+          "avgTimeMs": 0.0008395999999999618,
+          "minTimeMs": 0.0001999999999497959,
+          "maxTimeMs": 0.37590000000000146,
+          "stdDev": 0.005269927498552083
+        },
+        {
+          "name": "length-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 1222045.7045093498,
+          "avgTimeMs": 0.0004982500000006553,
+          "minTimeMs": 0.00029999999992469384,
+          "maxTimeMs": 0.2603000000000293,
+          "stdDev": 0.003188186935783399
+        },
+        {
+          "name": "length-yup",
+          "library": "Yup",
+          "opsPerSecond": 389108.08644425275,
+          "avgTimeMs": 0.0023309899999993037,
+          "minTimeMs": 0.0009000000000014552,
+          "maxTimeMs": 0.5903999999999314,
+          "stdDev": 0.009366845926985268
+        }
+      ]
+    }
+  ]
+}

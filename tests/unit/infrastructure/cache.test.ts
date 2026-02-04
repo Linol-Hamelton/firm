@@ -2,7 +2,6 @@
  * Cache Tests
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import {
   LRUCache,
   TTLCache,

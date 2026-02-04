@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-02-04T03:14:23.287Z",
+  "environment": {
+    "node": "v22.21.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "suites": [
+    {
+      "name": "Simple Object - Valid Data",
+      "description": "Validation of valid data (success path)",
+      "results": [
+        {
+          "name": "valid-firm",
+          "library": "FIRM",
+          "opsPerSecond": 256693.9361191477,
+          "avgTimeMs": 0.0032803400000008197,
+          "minTimeMs": 0.001299999999901047,
+          "maxTimeMs": 0.761600000000044,
+          "stdDev": 0.010846808631318358
+        },
+        {
+          "name": "valid-zod",
+          "library": "Zod",
+          "opsPerSecond": 223843.34547310378,
+          "avgTimeMs": 0.004005550000000426,
+          "minTimeMs": 0.0009999999999763531,
+          "maxTimeMs": 0.7083000000000084,
+          "stdDev": 0.0128878456771301
+        },
+        {
+          "name": "valid-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 360498.06412539503,
+          "avgTimeMs": 0.0024367800000001695,
+          "minTimeMs": 0.0009999999999763531,
+          "maxTimeMs": 0.5176999999999907,
+          "stdDev": 0.010227416938387114
+        },
+        {
+          "name": "valid-yup",
+          "library": "Yup",
+          "opsPerSecond": 58787.91085401196,
+          "avgTimeMs": 0.016700240000000553,
+          "minTimeMs": 0.00909999999998945,
+          "maxTimeMs": 0.7887999999999238,
+          "stdDev": 0.0217174779369621
+        }
+      ]
+    },
+    {
+      "name": "Simple Object - Invalid Data",
+      "description": "Validation of invalid data (error path)",
+      "results": [
+        {
+          "name": "invalid-firm",
+          "library": "FIRM",
+          "opsPerSecond": 247895.36832293813,
+          "avgTimeMs": 0.0037601700000008693,
+          "minTimeMs": 0.0016999999999143256,
+          "maxTimeMs": 0.5424999999999045,
+          "stdDev": 0.010571595176277496
+        },
+        {
+          "name": "invalid-zod",
+          "library": "Zod",
+          "opsPerSecond": 79937.58473383979,
+          "avgTimeMs": 0.011797649999999204,
+          "minTimeMs": 0.0032999999998537533,
+          "maxTimeMs": 5.325900000000047,
+          "stdDev": 0.1035442889949877
+        },
+        {
+          "name": "invalid-valibot",
+          "library": "Valibot",
+          "opsPerSecond": 197171.379391253,
+          "avgTimeMs": 0.004739950000001272,
+          "minTimeMs": 0.0019999999999527063,
+          "maxTimeMs": 3.8690999999998894,
+          "stdDev": 0.04164890086181461
+        },
+        {
+          "name": "invalid-yup",
+          "library": "Yup",
+          "opsPerSecond": 1530.3629099206003,
+          "avgTimeMs": 0.6528772044415396,
+          "minTimeMs": 0.41640000000006694,
+          "maxTimeMs": 1.6564999999995962,
+          "stdDev": 0.20056252725265677
+        }
+      ]
+    }
+  ]
+}

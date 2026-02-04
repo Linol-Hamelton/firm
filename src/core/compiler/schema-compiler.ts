@@ -464,8 +464,11 @@ function compileObject<T>(
   }
 
   const knownKeys = new Set(Object.keys(shape));
+  const fieldCount = fieldValidators.length;
+  const hasUnknownKeyHandling = unknownKeys !== 'strip';
 
   return function validateObject(data: unknown): ValidationResult<T> {
+    // Fast type check
     if (typeof data !== 'object' || data === null || Array.isArray(data)) {
       return {
         ok: false,
@@ -480,33 +483,67 @@ function compileObject<T>(
     }
 
     const input = data as Record<string, unknown>;
-    const result: Record<string, unknown> = {};
-    const errors: ValidationError[] = [];
 
-    // Validate known fields
-    for (const { key, validate } of fieldValidators) {
+    // OPTIMIZATION 1: Lazy allocation - only create objects when needed
+    let result: Record<string, unknown> | null = null;
+    let errors: ValidationError[] | null = null;
+    let hasTransformations = false;
+
+    // OPTIMIZATION 2: Fast path for valid data - validate first, build result only if needed
+    for (let i = 0; i < fieldCount; i++) {
+      const validator = fieldValidators[i]!;
+      const key = validator.key;
+      const validate = validator.validate;
       const fieldResult = validate(input[key]);
 
       if (!fieldResult.ok) {
-        for (const error of fieldResult.errors) {
+        // Lazy allocate errors array on first error
+        if (errors === null) {
+          errors = [];
+        }
+
+        // OPTIMIZATION 3: Minimize string concatenation
+        const errLen = fieldResult.errors.length;
+        for (let j = 0; j < errLen; j++) {
+          const error = fieldResult.errors[j]!;
           errors.push({
-            ...error,
-            path: error.path ? `${key}.${error.path}` : key,
+            path: error.path ? key + '.' + error.path : key,
+            code: error.code,
+            message: error.message,
           });
         }
-        if (abortEarly && errors.length > 0) {
+
+        if (abortEarly) {
           return { ok: false, errors };
         }
-      } else if (fieldResult.data !== undefined) {
-        result[key] = fieldResult.data;
+      } else {
+        // Check if field was transformed or needs to be included
+        const fieldValue = fieldResult.data;
+        if (fieldValue !== input[key] || fieldValue !== undefined) {
+          hasTransformations = true;
+          // Lazy allocate result object only when we have data to store
+          if (result === null) {
+            result = {};
+          }
+          if (fieldValue !== undefined) {
+            result[key] = fieldValue;
+          }
+        }
       }
     }
 
-    // Handle unknown keys
-    if (unknownKeys !== 'strip') {
-      for (const key of Object.keys(input)) {
+    // Handle unknown keys (only if configured)
+    if (hasUnknownKeyHandling) {
+      const inputKeys = Object.keys(input);
+      const inputKeyCount = inputKeys.length;
+      for (let i = 0; i < inputKeyCount; i++) {
+        const key = inputKeys[i]!;
         if (!knownKeys.has(key)) {
           if (unknownKeys === 'strict') {
+            // Lazy allocate errors array
+            if (errors === null) {
+              errors = [];
+            }
             errors.push({
               path: key,
               code: ErrorCode.OBJECT_UNKNOWN_KEY,
@@ -516,17 +553,34 @@ function compileObject<T>(
               return { ok: false, errors };
             }
           } else if (unknownKeys === 'passthrough') {
+            // Lazy allocate result object
+            if (result === null) {
+              result = {};
+            }
             result[key] = input[key];
+            hasTransformations = true;
           }
         }
       }
     }
 
-    if (errors.length > 0) {
+    // Return errors if any
+    if (errors !== null && errors.length > 0) {
       return { ok: false, errors };
     }
 
-    return { ok: true, data: result as T };
+    // OPTIMIZATION 4: If no transformations, return input as-is (avoid object copy)
+    if (!hasTransformations && result === null) {
+      return { ok: true, data: input as T };
+    }
+
+    // If we built a result object, return it
+    if (result !== null) {
+      return { ok: true, data: result as T };
+    }
+
+    // Fallback: return input (shouldn't reach here but safe)
+    return { ok: true, data: input as T };
   };
 }
 
@@ -593,32 +647,63 @@ function compileArray<T>(
       return { ok: true, data };
     }
 
-    const result: T[] = [];
-    const errors: ValidationError[] = [];
+    // OPTIMIZATION 1: Lazy allocation - only create arrays when needed
+    let result: T[] | null = null;
+    let errors: ValidationError[] | null = null;
+    let hasTransformations = false;
 
-    for (let i = 0; i < data.length; i++) {
-      const itemResult = validateElement(data[i]);
+    const len = data.length;
+
+    // OPTIMIZATION 2: Fast path - validate first, build result only if needed
+    for (let i = 0; i < len; i++) {
+      const item = data[i];
+      const itemResult = validateElement(item);
 
       if (!itemResult.ok) {
-        for (const error of itemResult.errors) {
+        // Lazy allocate errors array on first error
+        if (errors === null) {
+          errors = [];
+        }
+
+        // OPTIMIZATION 3: Minimize allocations in error path
+        const itemErrors = itemResult.errors;
+        const errLen = itemErrors.length;
+        for (let j = 0; j < errLen; j++) {
+          const error = itemErrors[j]!;
           errors.push({
-            ...error,
-            path: error.path ? `[${i}].${error.path}` : `[${i}]`,
+            path: error.path ? '[' + i + '].' + error.path : '[' + i + ']',
+            code: error.code,
+            message: error.message,
           });
         }
+
         if (abortEarly) {
           return { ok: false, errors };
         }
       } else {
-        result.push(itemResult.data as T);
+        const itemData = itemResult.data as T;
+        // Check if item was transformed
+        if (itemData !== item) {
+          hasTransformations = true;
+        }
+        // Lazy allocate result array only when we have data
+        if (result === null) {
+          result = [];
+        }
+        result.push(itemData);
       }
     }
 
-    if (errors.length > 0) {
+    if (errors !== null && errors.length > 0) {
       return { ok: false, errors };
     }
 
-    return { ok: true, data: result };
+    // OPTIMIZATION 4: If no transformations, return input as-is (avoid array copy)
+    if (!hasTransformations && result === null) {
+      return { ok: true, data };
+    }
+
+    return { ok: true, data: result !== null ? result : data };
   };
 }
 

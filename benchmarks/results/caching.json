@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-02-04T03:52:27.409Z",
+  "environment": {
+    "node": "v22.21.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "suites": [
+    {
+      "name": "Repeated Validation - WITHOUT Caching",
+      "description": "Baseline: validate same data 1000 times without cache",
+      "results": [
+        {
+          "name": "firm-no-cache",
+          "library": "FIRM (no cache)",
+          "opsPerSecond": 101.7235256296911,
+          "avgTimeMs": 9.824989215686436,
+          "minTimeMs": 7.768200000000434,
+          "maxTimeMs": 14.690300000000207,
+          "stdDev": 1.6213109350820696
+        },
+        {
+          "name": "zod-no-cache",
+          "library": "Zod (no cache)",
+          "opsPerSecond": 91.22120805832277,
+          "avgTimeMs": 10.957464130434385,
+          "minTimeMs": 8.586599999998725,
+          "maxTimeMs": 14.778800000000047,
+          "stdDev": 1.5547603879127208
+        }
+      ]
+    },
+    {
+      "name": "Repeated Validation - WITH Caching",
+      "description": "Smart cache: validate same data 1000 times with cache",
+      "results": [
+        {
+          "name": "firm-with-cache",
+          "library": "FIRM (cached)",
+          "opsPerSecond": 30153.632758906773,
+          "avgTimeMs": 0.03265855000000265,
+          "minTimeMs": 0.022199999999429565,
+          "maxTimeMs": 0.49169999999867287,
+          "stdDev": 0.010081719838265009
+        }
+      ]
+    }
+  ]
+}

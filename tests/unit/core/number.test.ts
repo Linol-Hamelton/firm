@@ -256,4 +256,46 @@ describe('NumberValidator', () => {
       }
     });
   });
+
+  describe('is() type guard with multipleOf', () => {
+    it('should use is() with multipleOf constraint', () => {
+      const schema = s.number().multipleOf(5);
+
+      expect(schema.is(10)).toBe(true);
+      expect(schema.is(15)).toBe(true);
+      expect(schema.is(7)).toBe(false);
+    });
+
+    it('should use is() with multipleOf decimals', () => {
+      const schema = s.number().multipleOf(0.1);
+
+      expect(schema.is(1.5)).toBe(true);
+      expect(schema.is(2.3)).toBe(true);
+      expect(schema.is(1.55)).toBe(false);
+    });
+
+    it('should combine is() with other constraints', () => {
+      const schema = s.number().positive().multipleOf(2);
+
+      expect(schema.is(4)).toBe(true);
+      expect(schema.is(-4)).toBe(false); // Not positive
+      expect(schema.is(3)).toBe(false); // Not multipleOf 2
+    });
+
+    it('should handle edge cases with is() and multipleOf', () => {
+      const schema = s.number().multipleOf(0.5);
+
+      expect(schema.is(1.5)).toBe(true);
+      expect(schema.is(2.0)).toBe(true);
+      expect(schema.is(1.25)).toBe(false);
+    });
+
+    it('should work with negative multipleOf', () => {
+      const schema = s.number().multipleOf(-3);
+
+      expect(schema.is(6)).toBe(true);
+      expect(schema.is(-6)).toBe(true);
+      expect(schema.is(5)).toBe(false);
+    });
+  });
 });

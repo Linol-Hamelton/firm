@@ -1,0 +1,83 @@
+
+> firm-validator@1.0.0 test:coverage
+> vitest run --coverage
+
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90md:/firm[39m
+[2m      Coverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m tests/unit/infrastructure/ai-errors/ai-error-enhancer.test.ts [2m ([22m[2m58 tests[22m[2m)[22m[90m 89[2mms[22m[39m
+ [32m✓[39m tests/unit/core/simple.test.ts [2m ([22m[2m1 test[22m[2m)[22m[90m 12[2mms[22m[39m
+ [33m❯[39m tests/unit/infrastructure/cache.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/infrastructure/auto-detection.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m tests/unit/infrastructure/formatter.test.ts [2m ([22m[2m21 tests[22m[2m)[22m[90m 100[2mms[22m[39m
+ [33m❯[39m tests/unit/infrastructure/logger.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/core/async.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/integrations/koa.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m tests/unit/core/special.test.ts [2m ([22m[2m30 tests[22m[2m)[22m[90m 59[2mms[22m[39m
+ [32m✓[39m tests/unit/core/coerce.test.ts [2m ([22m[2m23 tests[22m[2m)[22m[90m 59[2mms[22m[39m
+ [32m✓[39m tests/unit/core/union.test.ts [2m ([22m[2m17 tests[22m[2m)[22m[90m 43[2mms[22m[39m
+ [32m✓[39m tests/unit/core/string.test.ts [2m ([22m[2m18 tests[22m[2m)[22m[90m 38[2mms[22m[39m
+ [32m✓[39m tests/unit/core/compiler.test.ts [2m ([22m[2m35 tests[22m[2m)[22m[90m 83[2mms[22m[39m
+ [32m✓[39m tests/unit/core/object.test.ts [2m ([22m[2m11 tests[22m[2m)[22m[90m 30[2mms[22m[39m
+ [32m✓[39m tests/unit/core/boolean.test.ts [2m ([22m[2m16 tests[22m[2m)[22m[90m 47[2mms[22m[39m
+ [32m✓[39m tests/unit/core/record.test.ts [2m ([22m[2m25 tests[22m[2m)[22m[90m 51[2mms[22m[39m
+ [32m✓[39m tests/unit/core/number.test.ts [2m ([22m[2m27 tests[22m[2m)[22m[90m 49[2mms[22m[39m
+ [32m✓[39m tests/integration/e2e.test.ts [2m ([22m[2m16 tests[22m[2m)[22m[90m 50[2mms[22m[39m
+ [32m✓[39m tests/unit/core/security.test.ts [2m ([22m[2m17 tests[22m[2m)[22m[90m 51[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/openapi.test.ts [2m ([22m[2m23 tests[22m[2m)[22m[90m 54[2mms[22m[39m
+ [32m✓[39m tests/unit/core/array.test.ts [2m ([22m[2m31 tests[22m[2m)[22m[90m 118[2mms[22m[39m
+ [33m❯[39m tests/unit/integrations/express.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/integrations/prisma.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m tests/unit/integrations/typeorm.test.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 37[2mms[22m[39m
+ [32m✓[39m tests/unit/infrastructure/streaming/streaming.test.ts [2m ([22m[2m10 tests[22m[2m)[22m[90m 39[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/react-hook-form.test.ts [2m ([22m[2m12 tests[22m[2m)[22m[90m 39[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/nestjs.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 41[2mms[22m[39m
+ [32m✓[39m tests/unit/integrations/trpc.test.ts [2m ([22m[2m12 tests[22m[2m)[22m[90m 43[2mms[22m[39m
+ [33m❯[39m tests/unit/infrastructure/smart-caching.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m tests/unit/infrastructure/auto-fix.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m tests/unit/core/property-based.test.ts [2m ([22m[2m22 tests[22m[2m)[22m[33m 955[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Suites 9 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/core/async.test.ts [2m[ tests/unit/core/async.test.ts ][22m
+[31m[1mError[22m: No test suite found in file D:/firm/tests/unit/core/async.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/infrastructure/auto-detection.test.ts [2m[ tests/unit/infrastructure/auto-detection.test.ts ][22m
+[31m[1mError[22m: No test suite found in file D:/firm/tests/unit/infrastructure/auto-detection.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/infrastructure/auto-fix.test.ts [2m[ tests/unit/infrastructure/auto-fix.test.ts ][22m
+[31m[1mError[22m: No test suite found in file D:/firm/tests/unit/infrastructure/auto-fix.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/infrastructure/cache.test.ts [2m[ tests/unit/infrastructure/cache.test.ts ][22m
+[31m[1mError[22m: No test suite found in file D:/firm/tests/unit/infrastructure/cache.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/infrastructure/logger.test.ts [2m[ tests/unit/infrastructure/logger.test.ts ][22m
+[31m[1mError[22m: No test suite found in file D:/firm/tests/unit/infrastructure/logger.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/infrastructure/smart-caching.test.ts [2m[ tests/unit/infrastructure/smart-caching.test.ts ][22m
+[31m[1mError[22m: No test suite found in file D:/firm/tests/unit/infrastructure/smart-caching.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/integrations/express.test.ts [2m[ tests/unit/integrations/express.test.ts ][22m
+[31m[1mError[22m: No test suite found in file D:/firm/tests/unit/integrations/express.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/integrations/koa.test.ts [2m[ tests/unit/integrations/koa.test.ts ][22m
+[31m[1mError[22m: No test suite found in file D:/firm/tests/unit/integrations/koa.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/integrations/prisma.test.ts [2m[ tests/unit/integrations/prisma.test.ts ][22m
+[31m[1mError[22m: No test suite found in file D:/firm/tests/unit/integrations/prisma.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m9 failed[39m[22m[2m | [22m[1m[32m22 passed[39m[22m[90m (31)[39m
+[2m      Tests [22m [1m[32m438 passed[39m[22m[90m (438)[39m
+[2m   Start at [22m 08:10:18
+[2m   Duration [22m 7.06s[2m (transform 23.66s, setup 10ms, collect 72.55s, tests 2.09s, environment 42ms, prepare 35.69s)[22m
+

@@ -1,7 +1,7 @@
 // @ts-ignore - TypeScript doesn't see compiled files
 import { s } from '../../../../src/index';
 // @ts-ignore - TypeScript doesn't see compiled files
-import { validateStream, validateArrayStream, isStream } from '../../../../src/infrastructure/streaming/streaming-validator';
+import { validateStream, validateArrayStream, isStream, createValidationTransform } from '../../../../src/infrastructure/streaming/streaming-validator';
 
 describe('Streaming Validation', () => {
   const userSchema = s.object({
@@ -127,6 +127,104 @@ describe('Streaming Validation', () => {
       expect(isStream(null)).toBe(false);
       expect(isStream(42)).toBe(false);
       expect(isStream('string')).toBe(false);
+    });
+  });
+
+  describe('validateArrayStream edge cases', () => {
+    it('should handle maxSize exceeded in array stream', async () => {
+      const stream = [
+        '[{"id":1,"name":"Alice","email":"alice@example.com"}]',
+      ];
+
+      const result = await validateArrayStream(userSchema, stream, { maxSize: 10 });
+
+      expect(result.ok).toBe(false);
+      expect(result.errors[0]?.code).toBe('STREAM_SIZE_EXCEEDED');
+    });
+
+    it('should handle validation errors in array items', async () => {
+      const stream = [
+        '[{"id":1,"name":"Alice","email":"invalid"}]',
+      ];
+
+      const result = await validateArrayStream(userSchema, stream, { abortEarly: false });
+
+      expect(result.ok).toBe(false);
+      expect(result.errors[0]?.code).toBe('VALIDATION_FAILED');
+    });
+
+    it('should handle non-array JSON in array stream', async () => {
+      const stream = ['{"id":1}'];
+
+      const result = await validateArrayStream(userSchema, stream);
+
+      expect(result.ok).toBe(false);
+      expect(result.errors[0]?.code).toBe('PARSE_ERROR');
+      expect(result.errors[0]?.message).toContain('array');
+    });
+
+    it('should call onError callback on errors', async () => {
+      const errors: any[] = [];
+      const onError = (error: any) => errors.push(error);
+
+      const stream = ['invalid json'];
+
+      await validateStream(userSchema, stream, { onError });
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0]?.code).toBe('PARSE_ERROR');
+    });
+
+    it('should call onError for validation failures', async () => {
+      const errors: any[] = [];
+      const onError = (error: any) => errors.push(error);
+
+      const stream = ['{"id":1,"name":"","email":"alice@example.com"}\n'];
+
+      await validateStream(userSchema, stream, { onError, abortEarly: false });
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0]?.code).toBe('VALIDATION_FAILED');
+    });
+
+    it('should handle stream errors gracefully', async () => {
+      async function* errorStream() {
+        yield '{"id":1,"name":"Alice","email":"alice@example.com"}\n';
+        throw new Error('Stream read error');
+      }
+
+      const result = await validateStream(userSchema, errorStream());
+
+      expect(result.ok).toBe(false);
+      expect(result.errors[0]?.code).toBe('STREAM_ERROR');
+      expect(result.errors[0]?.message).toContain('Stream read error');
+    });
+
+    it('should handle non-Error stream exceptions', async () => {
+      async function* errorStream() {
+        yield '{"id":1,"name":"Test","email":"test@example.com"}\n';
+        throw 'string error';
+      }
+
+      const result = await validateStream(userSchema, errorStream());
+
+      expect(result.ok).toBe(false);
+      // Stream error occurs after first valid item is processed
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('createValidationTransform', () => {
+    it('should throw error for unsupported environment', () => {
+      expect(() => {
+        createValidationTransform(userSchema);
+      }).toThrow('not supported');
+    });
+
+    it('should throw error even with options', () => {
+      expect(() => {
+        createValidationTransform(userSchema, { maxSize: 1000 });
+      }).toThrow('not supported');
     });
   });
 });
